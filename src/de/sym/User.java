@@ -1,4 +1,4 @@
-package de.blabla;
+package de.sym;
 
 public class User {
 	private String nickname;

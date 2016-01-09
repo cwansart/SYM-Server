@@ -1,4 +1,4 @@
-package de.blabla;
+package de.sym;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,7 +22,7 @@ public class ChatServer {
 		try {
 			if (connection == null) {
 				Class.forName("com.mysql.jdbc.Driver");
-				// TODO: Wir sollten den Namen der MySQL-Datenbank und -Nutzer noch ändern
+				// TODO: Wir sollten den Namen der MySQL-Datenbank und -Nutzer noch ï¿½ndern
 				this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/blabla", "blabla", "blabla");
 			}
 		} catch (SQLException e) {

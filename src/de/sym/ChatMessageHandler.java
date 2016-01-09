@@ -1,4 +1,4 @@
-package de.blabla;
+package de.sym;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -79,8 +79,8 @@ public class ChatMessageHandler implements Whole<String> {
 			break;
 
 		case DELETEBUDDY:
-			// Hier m�ssen wir noch �berlegen was mit dem buddy passiert.
-			// Im Client des Buddys muss die Freundschft ja auch gel�scht werden.
+			// Hier müssen wir noch überlegen was mit dem buddy passiert.
+			// Im Client des Buddys muss die Freundschft ja auch gelöscht werden.
 			// Wie soll er z.B. informiert werden?
 			handleDeleteBuddy(jsonObject);
 			break;
