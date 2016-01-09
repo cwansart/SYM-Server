@@ -1,0 +1,69 @@
+Client -> Server
+
+Invalid:
+{
+	"msgtype": 0
+}
+
+Login:
+{
+	"msgtype": 1,
+	"nickname": "nickname",
+	"password": "password"
+}
+
+Logout:
+{
+	"msgtype": 2,
+	"nickname": "nickname"
+}
+
+Message:
+{
+	"msgtype": 3,
+	"nickname": "author",
+	"content": "MessageContent",
+	"datetime": "datetime"
+}
+
+DeleteBuddy:
+{
+	"msgtype": 4,
+	"nickname": "nickname",
+	"buddyname": "buddyname"
+}
+
+/*********************************************************************/
+
+Server -> Client
+
+Invalid:
+{
+	"msgtype": 0
+}
+
+Login:
+{
+	"msgtype": 1,
+	"nickname": "nickname",
+	"firstname": "firstname",
+	"lastname": "lastname",
+	"friendslist" : [
+		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data" },
+		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data" },
+	],
+}
+
+Logout:
+{
+	"msgtype": 2
+}
+
+Message:
+{
+	"msgtype": 3,
+	"nickname": "author",
+	"content": "MessageContent",
+	"datetime": "datetime"
+}
+

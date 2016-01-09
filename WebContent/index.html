@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WebSocket-Test</title>
+</head>
+<body>
+	<h1>
+		Status: <span id="status">Bin am laden...</span>
+	</h1>
+
+	<div id="wrapper" style="display: none;">
+		<h2>Login</h2>
+		<div>
+			<label for="nicknameInput"> Nickname: <input type="text"
+				id="nicknameInput">
+			</label>
+		</div>
+		<div>
+			<label for="passwordInput"> Passwort: <input type="password"
+				id="passwordInput">
+			</label>
+		</div>
+
+		<pre id="userData"></pre>
+	</div>
+
+	<script>
+		// Klasse LoginServer
+		function LoginServer(wsUri) {
+			// Privates Attribut 
+			var webSocket = new WebSocket(wsUri);
+
+			// Teil des Konstruktors
+			webSocket.onopen = function(event) {
+				console.log('webSocket opened');
+				document.getElementById('wrapper').style.display = 'initial';
+				document.getElementById('status').innerHTML = 'Fertig geladen!';
+			};
+
+			webSocket.onclose = function(event) {
+				console.log('webSocket closed');
+				document.getElementById('status').innerHTML = 'Socket geschlossen. :()';
+			};
+
+			webSocket.onmessage = function(event) {
+				console.log('webSocket message');
+				document.getElementById('userData').innerHTML = event.data;
+				document.getElementById('status').innerHTML = 'Nachricht empfangen! :D';
+			};
+
+			webSocket.onerror = function(event) {
+				console.log('An error occured');
+				console.log(event);
+			}
+
+			// Öffentliche Methoden
+			this.sendMessage = function(message) {
+				webSocket.send(JSON.stringify(message));
+			};
+		}
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+			var that = this;
+			that.loginServer = new LoginServer('ws://' + document.location.host
+					+ '/SYM-Server/chat')
+
+			var nicknameInput = document.getElementById('nicknameInput');
+			var passwordInput = document.getElementById('passwordInput');
+			nicknameInput.addEventListener('keypress', function(e) {
+				// Falls ENTER gedrückt wurde
+				if (e.keyCode == 13) {
+					passwordInput.focus();
+				}
+			});
+			passwordInput.addEventListener('keypress', function(e) {
+				// Falls ENTER gedrückt wurde
+				if (e.keyCode == 13) {
+					var message = {
+							"msgtype": 1,
+							"nickname": nicknameInput.value,
+							"password": passwordInput.value,
+					}
+					that.loginServer.sendMessage(message);
+					nicknameInput.value = '';
+					passwordInput.value = '';
+				}
+			});
+		});
+	</script>
+</body>
+</html>
