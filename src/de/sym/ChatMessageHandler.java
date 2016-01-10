@@ -210,7 +210,6 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 		
-		String nickname = jsonObject.getString("nickname");
 		String buddyname = jsonObject.getString("buddyname");
 
 		String sql = "DELETE FROM user_user WHERE (nickname1 =? AND nickname2 =?) OR (nickname2=? AND nickname1=?)";
