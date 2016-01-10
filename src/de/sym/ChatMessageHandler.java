@@ -98,6 +98,11 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	private void handleGetConversations(JsonObject jsonObject) {
+		if(!isLoggedIn){
+			sendResponse("Not logged in");
+			return;
+		}
+		
 		String sql = "SELECT title "
 				+ "FROM chat, message "
 				+ "WHERE chat.id = message.chat_id "
@@ -200,6 +205,11 @@ public class ChatMessageHandler implements Whole<String> {
 		}
 	}
 	private void handleDeleteBuddy(JsonObject jsonObject) {
+		if(!isLoggedIn){
+			sendResponse("Not logged in");
+			return;
+		}
+		
 		String nickname = jsonObject.getString("nickname");
 		String buddyname = jsonObject.getString("buddyname");
 
