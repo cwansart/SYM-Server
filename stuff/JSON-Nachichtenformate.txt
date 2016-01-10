@@ -33,6 +33,11 @@ DeleteBuddy:
 	"buddyname": "buddyname"
 }
 
+GetConversations:
+{
+	"msgtype": 5,
+}
+
 /*********************************************************************/
 
 Server -> Client
@@ -68,3 +73,11 @@ Message:
 	"datetime": "datetime"
 }
 
+GetConversations:
+{
+	"msgtype": 5,
+	"conversations": [
+		{ "title": "Conversation Title 1", "lastlog": "Letzte Nachricht im Chatlog" },
+		{ "title": "Conversation Title 2", "lastlog": "Letzte Nachricht im Chatlog" }
+	]
+}

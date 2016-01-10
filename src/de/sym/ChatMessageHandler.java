@@ -24,6 +24,7 @@ public class ChatMessageHandler implements Whole<String> {
 	private Connection connection;
 	private int loginAttempts = 0;
 	private boolean isLoggedIn = false;
+	private String nickname;
 	private Session session;
 	private List<Session> sessionList;
 
@@ -32,7 +33,8 @@ public class ChatMessageHandler implements Whole<String> {
 		LOGIN, // 1
 		LOGOUT, // 2
 		MESSAGE, // 3
-		DELETEBUDDY // 4 ...
+		DELETEBUDDY, // 4
+		GETCONVERSATIONS // 5
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, Connection connection) {
@@ -84,10 +86,41 @@ public class ChatMessageHandler implements Whole<String> {
 			// Wie soll er z.B. informiert werden?
 			handleDeleteBuddy(jsonObject);
 			break;
+			
+		case GETCONVERSATIONS:
+			handleGetConversations(jsonObject);
+			break;
 
 		default:
 			sendResponse("Received invalid msgtype");
 			break;
+		}
+	}
+
+	private void handleGetConversations(JsonObject jsonObject) {
+		String sql = "SELECT title "
+				+ "FROM chat, message "
+				+ "WHERE chat.id = message.chat_id "
+				+ "AND message.nickname = ?";
+		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			JsonObjectBuilder response = Json.createObjectBuilder();
+			response.add("msgtype", 5);
+			
+			JsonArrayBuilder conversations = Json.createArrayBuilder();
+			while(resultSet.next()) {
+				JsonObjectBuilder conversation = Json.createObjectBuilder();
+				conversation.add("title", resultSet.getString(1));
+				conversations.add(conversation);
+			}
+			response.add("conversations", conversations.build());
+			sendResponse(response.build().toString());
+			
+		} catch (SQLException e) {
+			System.err.println("Couldn't get conversations of user " + nickname);
+			e.printStackTrace();
 		}
 	}
 
@@ -114,7 +147,6 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 
-		String nickname;
 		String plaintext;
 		try {
 			nickname = jsonObject.getString("nickname");
@@ -246,6 +278,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.MESSAGE;
 		case 4:
 			return MessageType.DELETEBUDDY;
+		case 5:
+			return MessageType.GETCONVERSATIONS;
 		default:
 			return MessageType.INVALID;
 		}
