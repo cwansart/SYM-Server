@@ -125,7 +125,7 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 
-		String sql = "SELECT password, firstname, lastname FROM user WHERE nickname = ?";
+		String sql = "SELECT password, firstname, lastname, quotation FROM user WHERE nickname = ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);
 
@@ -133,11 +133,12 @@ public class ChatMessageHandler implements Whole<String> {
 			String passwordHash = null;
 			String firstname = null;
 			String lastname = null;
+			String quotation = null;
 			while (resultSet.next()) {
 				passwordHash = resultSet.getString(1);
 				firstname = resultSet.getString(2);
 				lastname = resultSet.getString(3);
-
+				quotation = resultSet.getString(4);
 			}
 
 			if (passwordHash != null) {
@@ -149,6 +150,7 @@ public class ChatMessageHandler implements Whole<String> {
 					response.add("nickname", nickname);
 					response.add("firstname", firstname);
 					response.add("lastname", lastname);
+					response.add("quotation", quotation);
 					response.add("friendslist", getFriendsList(nickname));
 
 					sendResponse(response.build().toString());
