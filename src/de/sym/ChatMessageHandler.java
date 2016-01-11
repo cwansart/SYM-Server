@@ -103,7 +103,7 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 		
-		String sql = "SELECT title "
+		String sql = "SELECT chat.id, title "
 				+ "FROM chat, message "
 				+ "WHERE chat.id = message.chat_id "
 				+ "AND message.nickname = ?";
@@ -117,7 +117,8 @@ public class ChatMessageHandler implements Whole<String> {
 			JsonArrayBuilder conversations = Json.createArrayBuilder();
 			while(resultSet.next()) {
 				JsonObjectBuilder conversation = Json.createObjectBuilder();
-				conversation.add("title", resultSet.getString(1));
+				conversation.add("id", resultSet.getString(1));
+				conversation.add("title", resultSet.getString(2));
 				conversations.add(conversation);
 			}
 			response.add("conversations", conversations.build());
