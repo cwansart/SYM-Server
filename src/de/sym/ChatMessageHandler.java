@@ -210,7 +210,14 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 		
-		String buddyname = jsonObject.getString("buddyname");
+		String buddyname;
+		try {
+			buddyname = jsonObject.getString("buddyname");
+		} catch(NullPointerException e) {
+			System.err.println("Delete buddy failed, missing buddyname");
+			sendResponse("Delete buddy failed, missing buddyname");
+			return;
+		}
 
 		String sql = "DELETE FROM user_user WHERE (nickname1 =? AND nickname2 =?) OR (nickname2=? AND nickname1=?)";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
