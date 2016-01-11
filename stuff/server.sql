@@ -119,6 +119,7 @@ ALTER TABLE `chat`
 -- Indizes für die Tabelle `chat_user`
 --
 ALTER TABLE `chat_user`
+  ADD PRIMARY KEY (`nickname`, `chat_id`),
   ADD KEY `nickname` (`nickname`),
   ADD KEY `chat_id` (`chat_id`);
 
@@ -126,7 +127,7 @@ ALTER TABLE `chat_user`
 -- Indizes für die Tabelle `message`
 --
 ALTER TABLE `message`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`, `chat_id`),
   ADD KEY `nickname` (`nickname`),
   ADD KEY `chat_id` (`chat_id`);
 
@@ -141,6 +142,8 @@ ALTER TABLE `user`
 --
 ALTER TABLE `user_user`
   ADD PRIMARY KEY (`nickname1`,`nickname2`);
+  ADD KEY `nickname1` (`nickname`),
+  ADD KEY `nickname2` (`nickname`);
 
 --
 -- AUTO_INCREMENT für exportierte Tabellen
