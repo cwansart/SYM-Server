@@ -17,9 +17,9 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Datenbank: `blabla`
+-- Datenbank: `sym`
 --
-use `blabla`;
+use `sym`;
 SET foreign_key_checks = 0;
 
 -- --------------------------------------------------------
@@ -141,9 +141,9 @@ ALTER TABLE `user`
 -- Indizes für die Tabelle `user_user`
 --
 ALTER TABLE `user_user`
-  ADD PRIMARY KEY (`nickname1`,`nickname2`);
-  ADD KEY `nickname1` (`nickname`),
-  ADD KEY `nickname2` (`nickname`);
+  ADD PRIMARY KEY (`nickname1`,`nickname2`),
+  ADD KEY `nickname1` (`nickname1`),
+  ADD KEY `nickname2` (`nickname2`);
 
 --
 -- AUTO_INCREMENT für exportierte Tabellen
@@ -176,6 +176,12 @@ ALTER TABLE `chat_user`
 ALTER TABLE `message`
   ADD CONSTRAINT `message_ibfk_1` FOREIGN KEY (`nickname`) REFERENCES `user` (`nickname`),
   ADD CONSTRAINT `message_ibfk_2` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`);
+--
+-- Constraints der Tabelle `user_user`
+--
+ALTER TABLE `user_user`
+  ADD CONSTRAINT `user_user_ibfk_1` FOREIGN KEY (`nickname1`) REFERENCES `user` (`nickname`),
+  ADD CONSTRAINT `user_user_ibfk_2` FOREIGN KEY (`nickname2`) REFERENCES `user` (`nickname`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
