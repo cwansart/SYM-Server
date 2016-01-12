@@ -12,15 +12,9 @@ Login:
 	"password": "password"
 }
 
-Logout:
-{
-	"msgtype": 2,
-	"nickname": "nickname"
-}
-
 Message:
 {
-	"msgtype": 3,
+	"msgtype": 2,
 	"nickname": "author",
 	"content": "MessageContent",
 	"datetime": "datetime"
@@ -28,14 +22,14 @@ Message:
 
 DeleteBuddy:
 {
-	"msgtype": 4,
+	"msgtype": 3,
 	"nickname": "nickname",
 	"buddyname": "buddyname"
 }
 
 GetConversations:
 {
-	"msgtype": 5,
+	"msgtype": 4,
 }
 
 /*********************************************************************/
@@ -60,14 +54,9 @@ Login:
 	],
 }
 
-Logout:
-{
-	"msgtype": 2
-}
-
 Message:
 {
-	"msgtype": 3,
+	"msgtype": 2,
 	"nickname": "author",
 	"content": "MessageContent",
 	"datetime": "datetime"
@@ -75,13 +64,13 @@ Message:
 
 DeleteBuddy:
 {
-	"msgtype": 4,
+	"msgtype": 3,
 	"nickname": "exbuddy"
 }
 
 GetConversations:
 {
-	"msgtype": 5,
+	"msgtype": 4,
 	"conversations": [
 		{ "id": 1, "title": "Conversation Title 1", "lastlog": "Letzte Nachricht im Chatlog" },
 		{ "id": 2, "title": "Conversation Title 2", "lastlog": "Letzte Nachricht im Chatlog" }
