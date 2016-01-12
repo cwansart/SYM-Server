@@ -73,6 +73,12 @@ Message:
 	"datetime": "datetime"
 }
 
+DeleteBuddy:
+{
+	"msgtype": 4,
+	"nickname": "exbuddy"
+}
+
 GetConversations:
 {
 	"msgtype": 5,
