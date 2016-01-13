@@ -101,8 +101,8 @@ CREATE TABLE `user_user` (
 
 INSERT INTO `user_user` (`nickname1`, `nickname2`) VALUES
 ('Chris', 'Pauli'),
-('Larr', 'Chris'),
-('Larr', 'Ceme'),
+('Chris', 'Larr'),
+('Ceme', 'Larr'),
 ('Larr', 'Pauli');
 
 --
