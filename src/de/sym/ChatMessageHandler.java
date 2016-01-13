@@ -98,7 +98,8 @@ public class ChatMessageHandler implements Whole<String> {
 		
 		String sql = "SELECT chat.id, title "
 				+ "FROM chat, message "
-				+ "WHERE chat.id = message.chat_id "
+				+ "WHERE chat.title IS NOT NULL "
+				+ "AND chat.id = message.chat_id "
 				+ "AND message.nickname = ?";
 		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);

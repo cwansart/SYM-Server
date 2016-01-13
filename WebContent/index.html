@@ -22,6 +22,14 @@
 			</label>
 		</div>
 
+		<div>
+			<h2>GetConversations</h2>
+			<label for="getConversationsButton">GetConversations-Nachricht
+				senden
+				<button id="getConversationsButton">Senden</button>
+			</label>
+		</div>
+
 		<pre id="userData"></pre>
 	</div>
 
@@ -45,8 +53,9 @@
 
 			webSocket.onmessage = function(event) {
 				console.log('webSocket message');
-				document.getElementById('userData').innerHTML = event.data;
+				document.getElementById('userData').innerHTML += event.data + "\n";
 				document.getElementById('status').innerHTML = 'Nachricht empfangen! :D';
+
 			};
 
 			webSocket.onerror = function(event) {
@@ -77,14 +86,22 @@
 				// Falls ENTER gedrückt wurde
 				if (e.keyCode == 13) {
 					var message = {
-							"msgtype": 1,
-							"nickname": nicknameInput.value,
-							"password": passwordInput.value,
+						"msgtype" : 1,
+						"nickname" : nicknameInput.value,
+						"password" : passwordInput.value,
 					}
 					that.loginServer.sendMessage(message);
 					nicknameInput.value = '';
 					passwordInput.value = '';
 				}
+			});
+			
+			var getConversationsButton = document.getElementById('getConversationsButton');
+			getConversationsButton.addEventListener('click', function(e) {
+				var message = {
+						"msgtype" : 4
+				}
+				that.loginServer.sendMessage(message);
 			});
 		});
 	</script>
