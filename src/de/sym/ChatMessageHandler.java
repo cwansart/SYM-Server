@@ -31,10 +31,9 @@ public class ChatMessageHandler implements Whole<String> {
 	private enum MessageType {
 		INVALID, // 0
 		LOGIN, // 1
-		LOGOUT, // 2
-		MESSAGE, // 3
-		DELETEBUDDY, // 4
-		GETCONVERSATIONS // 5
+		MESSAGE, // 2
+		DELETEBUDDY, // 3
+		GETCONVERSATIONS // 4
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, Connection connection) {
@@ -66,12 +65,6 @@ public class ChatMessageHandler implements Whole<String> {
 		switch (messageType) {
 		case LOGIN:
 			handleLogin(jsonObject);
-			break;
-
-		case LOGOUT:
-			// Do we really need this? I mean, if the client disconnects from
-			// the WebSocket we'll notice in LoginServer's onClose() method
-			System.err.println("logout message received");
 			break;
 
 		case MESSAGE:
@@ -290,12 +283,10 @@ public class ChatMessageHandler implements Whole<String> {
 		case 1:
 			return MessageType.LOGIN;
 		case 2:
-			return MessageType.LOGOUT;
-		case 3:
 			return MessageType.MESSAGE;
-		case 4:
+		case 3:
 			return MessageType.DELETEBUDDY;
-		case 5:
+		case 4:
 			return MessageType.GETCONVERSATIONS;
 		default:
 			return MessageType.INVALID;
