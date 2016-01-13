@@ -106,12 +106,12 @@ public class ChatMessageHandler implements Whole<String> {
 			ResultSet resultSet = preparedStatement.executeQuery();
 			
 			JsonObjectBuilder response = Json.createObjectBuilder();
-			response.add("msgtype", 5);
+			response.add("msgtype", 4);
 			
 			JsonArrayBuilder conversations = Json.createArrayBuilder();
 			while(resultSet.next()) {
 				JsonObjectBuilder conversation = Json.createObjectBuilder();
-				conversation.add("id", resultSet.getString(1));
+				conversation.add("id", resultSet.getInt(1));
 				conversation.add("title", resultSet.getString(2));
 				conversations.add(conversation);
 			}
