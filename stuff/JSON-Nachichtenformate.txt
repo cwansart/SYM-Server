@@ -32,6 +32,11 @@ GetConversations:
 	"msgtype": 4,
 }
 
+GetMessages:
+{
+	"msgtype": 5,
+	"chatid": 2
+
 /*********************************************************************/
 
 Server -> Client
@@ -49,8 +54,8 @@ Login:
 	"lastname": "lastname",
 	"quotation": "quotation",
 	"friendslist" : [
-		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatID": 1 },
-		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatID": 2 },
+		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 1 },
+		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 2 },
 	],
 }
 

@@ -245,7 +245,7 @@ public class ChatMessageHandler implements Whole<String> {
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
 				currentLine.add("quotation", resultSet.getString(2));
-				currentLine.add("chatID", resultSet.getInt(3));
+				currentLine.add("chatid", resultSet.getInt(3));
 				friendslist.add(currentLine);
 			}
 
