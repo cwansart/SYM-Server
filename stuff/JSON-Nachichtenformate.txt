@@ -81,3 +81,15 @@ GetConversations:
 		{ "id": 2, "title": "Conversation Title 2", "lastlog": "Letzte Nachricht im Chatlog" }
 	]
 }
+
+GetMessages:
+{
+	"msgtype": 5,
+	"chatid": 1,
+	"messages":[
+		{ "id": 1, "nickname": "author", "date": "date", "content": "Message-content" },
+		{ "id": 2, "nickname": "author", "date": "date", "content": "Message-content" },
+		{ "id": 3, "nickname": "author", "date": "date", "content": "Message-content" },
+		{ "id": 4, "nickname": "author", "date": "date", "content": "Message-content" }
+	]
+}
