@@ -229,7 +229,7 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	private JsonArray getFriendsList(String nickname) {
-		String sql = "SELECT nickname, quotation "
+		String sql = "SELECT nickname, quotation, chatID "
 				+ "FROM user, user_user "
 				+ "WHERE (user.nickname = user_user.nickname2 "
 				+ "AND user_user.nickname1 = ?) "
@@ -245,6 +245,7 @@ public class ChatMessageHandler implements Whole<String> {
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
 				currentLine.add("quotation", resultSet.getString(2));
+				currentLine.add("chatID", resultSet.getInt(3));
 				friendslist.add(currentLine);
 			}
 

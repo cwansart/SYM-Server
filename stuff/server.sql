@@ -24,7 +24,9 @@ INSERT INTO chat (title) VALUES
 ('Chris schlechte Witze'),
 ('möp'),
 (NULL), -- Einzelchat, ID 5
-(NULL); -- Einzelchat, ID 6
+(NULL), -- Einzelchat, ID 6
+(NULL), -- Einzelchat, ID 7
+(NULL); -- Einzelchat, ID 8
 
 -- ----------------------------------------------------------------------------
 -- user
@@ -58,7 +60,7 @@ INSERT INTO chat_user VALUES
 ('Larr', 1),
 ('Larr', 2),
 ('Larr', 3),
-('Larr', 5),
+('Pauli', 5),
 ('Larr', 6),
 ('Chris', 1),
 ('Chris', 3),
@@ -66,9 +68,13 @@ INSERT INTO chat_user VALUES
 ('Chris', 5),
 ('Pauli', 1),
 ('Pauli', 2),
-('Pauli', 6),
+('Chris', 6),
 ('Ceme', 3),
 ('Ceme', 4),
+('Ceme', 7),
+('Larr', 7),
+('Larr', 8),
+('Pauli', 8),
 ('stalker', 4);
 
 -- ----------------------------------------------------------------------------
@@ -107,15 +113,16 @@ INSERT INTO message (nickname, chat_id, content) VALUES
 CREATE TABLE user_user (
   nickname1 varchar(255) NOT NULL,
   nickname2 varchar(255) NOT NULL,
+  chatID mediumint(9) NOT NULL,
   PRIMARY KEY (nickname1, nickname2),
   FOREIGN KEY (nickname1) REFERENCES user (nickname),
   FOREIGN KEY (nickname2) REFERENCES user (nickname)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-INSERT INTO user_user (nickname1, nickname2) VALUES
-('Chris', 'Pauli'),
-('Chris', 'Larr'),
-('Ceme', 'Larr'),
-('Larr', 'Pauli');
+INSERT INTO user_user (nickname1, nickname2, chatID) VALUES
+('Chris', 'Pauli', 5),
+('Chris', 'Larr', 6),
+('Ceme', 'Larr', 7),
+('Larr', 'Pauli', 8);
 
 SET foreign_key_checks = 1;
