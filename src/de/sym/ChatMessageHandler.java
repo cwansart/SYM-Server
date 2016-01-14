@@ -125,11 +125,15 @@ public class ChatMessageHandler implements Whole<String> {
 			
 			JsonArrayBuilder messages = Json.createArrayBuilder();
 			while(resultSet.next()) {
-				System.out.println("chatloop" + resultSet.getString(4));
+				String date = resultSet.getString(3);
+				if(date.endsWith(".0")) {
+					date = date.substring(0, date.length()-2);
+				}
+				
 				JsonObjectBuilder message = Json.createObjectBuilder();
 				message.add("id", resultSet.getInt(1));
 				message.add("nickname", resultSet.getString(2));
-				message.add("date", resultSet.getString(3));
+				message.add("date", date);
 				message.add("content", resultSet.getString(4));
 				messages.add(message);
 			}
