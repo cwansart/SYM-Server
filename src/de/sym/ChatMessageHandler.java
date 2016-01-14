@@ -19,6 +19,8 @@ import javax.websocket.Session;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import com.sun.org.apache.bcel.internal.util.SyntheticRepository;
+
 public class ChatMessageHandler implements Whole<String> {
 	private RemoteEndpoint.Basic remote;
 	private Connection connection;
@@ -33,7 +35,8 @@ public class ChatMessageHandler implements Whole<String> {
 		LOGIN, // 1
 		MESSAGE, // 2
 		DELETEBUDDY, // 3
-		GETCONVERSATIONS // 4
+		GETCONVERSATIONS, // 4
+		GETMESSAGES // 5
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, Connection connection) {
@@ -45,6 +48,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 	@Override
 	public void onMessage(String message) {
+		System.err.println("MESSAGE: " + message);
 		JsonObject jsonObject = Json.createReader(new StringReader(message)).readObject();
 		MessageType messageType;
 
@@ -83,10 +87,59 @@ public class ChatMessageHandler implements Whole<String> {
 		case GETCONVERSATIONS:
 			handleGetConversations(jsonObject);
 			break;
+			
+		case GETMESSAGES:
+			handleGetMessages(jsonObject);
+			break;
 
 		default:
 			sendResponse("Received invalid msgtype");
 			break;
+		}
+	}
+
+	private void handleGetMessages(JsonObject jsonObject) {
+		if(!isLoggedIn){
+			sendResponse("Not logged in");
+			return;
+		}
+		
+		int chatId;
+		try {
+			chatId = jsonObject.getInt("chatid");
+		} catch(NullPointerException e) {
+			System.err.println("Message didn't contain a chat id");
+			sendResponse("Couldn't get message. Unknown ID");
+			return;
+		}
+		
+		String sql = "SELECT id, nickname, date, content FROM `message` WHERE chat_id =?";
+		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setInt(1,  chatId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			
+			JsonObjectBuilder response = Json.createObjectBuilder();
+			response.add("msgtype", 5);
+			response.add("chatid", chatId);
+			
+			JsonArrayBuilder messages = Json.createArrayBuilder();
+			while(resultSet.next()) {
+				System.out.println("chatloop" + resultSet.getString(4));
+				JsonObjectBuilder message = Json.createObjectBuilder();
+				message.add("id", resultSet.getInt(1));
+				message.add("nickname", resultSet.getString(2));
+				message.add("date", resultSet.getString(3));
+				message.add("content", resultSet.getString(4));
+				messages.add(message);
+			}
+			System.out.println("messages: " + messages.toString());
+			response.add("messages", messages.build());
+			sendResponse(response.build().toString());
+			
+		} catch (SQLException e) {
+			System.err.println("Couldn't get messages of user " + nickname);
+			e.printStackTrace();
 		}
 	}
 
@@ -290,6 +343,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.DELETEBUDDY;
 		case 4:
 			return MessageType.GETCONVERSATIONS;
+		case 5:
+			return MessageType.GETMESSAGES;
 		default:
 			return MessageType.INVALID;
 		}

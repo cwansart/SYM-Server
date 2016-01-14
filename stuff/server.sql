@@ -84,7 +84,7 @@ CREATE TABLE message (
   id mediumint(9) NOT NULL AUTO_INCREMENT,
   nickname varchar(255) NOT NULL,
   chat_id mediumint(9) NOT NULL,
-  date date DEFAULT NULL,
+  date TIMESTAMP DEFAULT NOW(),
   content text,
   PRIMARY KEY (id, chat_id),
   FOREIGN KEY (nickname) REFERENCES user (nickname),
