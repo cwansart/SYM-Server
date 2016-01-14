@@ -49,8 +49,8 @@ Login:
 	"lastname": "lastname",
 	"quotation": "quotation",
 	"friendslist" : [
-		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data" },
-		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data" },
+		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatID": 1 },
+		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatID": 2 },
 	],
 }
 
