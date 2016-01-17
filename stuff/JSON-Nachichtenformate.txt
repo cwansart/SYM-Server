@@ -36,6 +36,14 @@ GetMessages:
 {
 	"msgtype": 5,
 	"chatid": 2
+}
+
+SendMessage:
+{
+	"msgtype": 6,
+	"chatid": 42,
+	"message": "Irgendein toller Text der gespeichert werden soll"
+}
 
 /*********************************************************************/
 
@@ -92,4 +100,14 @@ GetMessages:
 		{ "id": 3, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 4, "nickname": "author", "date": "date", "content": "Message-content" }
 	]
+}
+
+// Diese Nachricht bekommt der Client um über neue Nachrichten informiert zu werden, die
+// von einem anderen Client geschickt wurden.
+SendMessage:
+{
+	"msgtype": 6,
+	"chatid": 42,
+	"author": "Chris",
+	"message": "Eine neue Nachricht von einem anderen Nutzer"
 }
