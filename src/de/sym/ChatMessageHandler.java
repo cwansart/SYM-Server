@@ -19,8 +19,6 @@ import javax.websocket.Session;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import com.sun.org.apache.bcel.internal.util.SyntheticRepository;
-
 public class ChatMessageHandler implements Whole<String> {
 	private RemoteEndpoint.Basic remote;
 	private Connection connection;
@@ -29,6 +27,7 @@ public class ChatMessageHandler implements Whole<String> {
 	private String nickname;
 	private Session session;
 	private List<Session> sessionList;
+	private List<ChatMessageHandler> messageHandlerList;
 
 	private enum MessageType {
 		INVALID, // 0
@@ -36,14 +35,20 @@ public class ChatMessageHandler implements Whole<String> {
 		MESSAGE, // 2
 		DELETEBUDDY, // 3
 		GETCONVERSATIONS, // 4
-		GETMESSAGES // 5
+		GETMESSAGES, // 5
+		SENDMESSAGE // 6
 	}
 
-	public ChatMessageHandler(Session session, List<Session> sessionList, Connection connection) {
+	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList, Connection connection) {
 		this.remote = session.getBasicRemote();
 		this.session = session;
 		this.sessionList = sessionList;
+		this.messageHandlerList = messageHandlerList;
 		this.connection = connection;
+	}
+	
+	String getNickname() {
+		return nickname;
 	}
 
 	@Override
@@ -91,10 +96,71 @@ public class ChatMessageHandler implements Whole<String> {
 		case GETMESSAGES:
 			handleGetMessages(jsonObject);
 			break;
+			
+		case SENDMESSAGE:
+			handleSendMessage(jsonObject);
+			break;
 
 		default:
 			sendResponse("Received invalid msgtype");
 			break;
+		}
+	}
+
+	private void handleSendMessage(JsonObject jsonObject) {
+		if(!isLoggedIn) {
+			sendResponse("Not logged in");
+			return;
+		}
+		
+		int chatId;
+		String message;
+		try {
+			chatId = jsonObject.getInt("chatid");
+			message = jsonObject.getString("message");
+		} catch(NullPointerException e) {
+			System.err.println("Message didn't contain a chat id or message");
+			sendResponse("Couldn't send message. Missing ID or message-");
+			return;
+		}
+		
+		// Insert message into database
+		String sql = "INSERT INTO message (nickname, chat_id, content) VALUES (?, ?, ?)";
+		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			preparedStatement.setInt(2, chatId);
+			preparedStatement.setString(3, message);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Couldn't send the message.");
+			sendResponse("Couldn't send message.");
+			e.printStackTrace();
+			return;
+		}
+		
+		// Get all users of the current chat to iterate over and notify users of new messages.
+		sql = "SELECT nickname FROM chat_user WHERE chat_id = 6"; // AND nickname != ?"; // zu Debugging-Zwecken auskommentiert
+		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			while(resultSet.next()) {
+				String nickname2 = resultSet.getString(1);
+				for(ChatMessageHandler messageHandler: messageHandlerList) {
+					if(messageHandler.getNickname().equals(nickname2)) {
+						JsonObjectBuilder response = Json.createObjectBuilder();
+						response.add("msgtype", 6);
+						response.add("chatid", chatId);
+						response.add("author", nickname);
+						response.add("message", message);
+						messageHandler.sendResponse(response.build().toString());
+					}
+				}
+			}
+		} catch (SQLException e) {
+			sendResponse("Couldn't send message.");
+			System.err.println("Could't send message due to errors");
+			e.printStackTrace();
 		}
 	}
 
@@ -321,7 +387,7 @@ public class ChatMessageHandler implements Whole<String> {
 	 * @param message
 	 *            contains message to be sent to client
 	 */
-	private void sendResponse(String message) {
+	public void sendResponse(String message) {
 		try {
 			remote.sendText(message);
 		} catch (IOException e) {
@@ -349,6 +415,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.GETCONVERSATIONS;
 		case 5:
 			return MessageType.GETMESSAGES;
+		case 6:
+			return MessageType.SENDMESSAGE;
 		default:
 			return MessageType.INVALID;
 		}

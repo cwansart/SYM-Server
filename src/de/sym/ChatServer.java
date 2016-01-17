@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.websocket.MessageHandler;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnOpen;
@@ -16,6 +17,7 @@ import javax.websocket.server.ServerEndpoint;
 public class ChatServer {
 	List<User> userList = new ArrayList<>();
 	List<Session> sessionList = new ArrayList<>();
+	List<ChatMessageHandler> messageHandlerList = new ArrayList<>();
 	Connection connection = null;
 
 	public ChatServer() {
@@ -38,13 +40,17 @@ public class ChatServer {
 	@OnOpen
 	public void onOpen(Session session) {
 		System.err.println("Opened Session:" + session.toString());
-		session.addMessageHandler(new ChatMessageHandler(session, sessionList, connection));
+		ChatMessageHandler messageHandler = new ChatMessageHandler(session, sessionList, messageHandlerList, connection);
+		session.addMessageHandler(messageHandler);
 		this.sessionList.add(session);
 	}
 
 	@OnClose
 	public void onClose(Session session) {
 		System.err.println("Closed Session:" + session.toString());
+		for(MessageHandler messageHandler: session.getMessageHandlers()) {
+			messageHandlerList.remove(messageHandler);
+		}
 		this.sessionList.remove(session);
 	}
 
