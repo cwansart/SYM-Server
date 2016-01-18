@@ -62,7 +62,7 @@ Login:
 Message:
 {
 	"msgtype": 2,
-	"chatid": 42,
+	"id": 42,
 	"author": "Chris",
 	"date": "2016-01-18 10:24:32",
 	"message": "Eine neue Nachricht von einem anderen Nutzer"
