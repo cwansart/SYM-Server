@@ -15,9 +15,8 @@ Login:
 Message:
 {
 	"msgtype": 2,
-	"nickname": "author",
-	"content": "MessageContent",
-	"datetime": "datetime"
+	"chatid": 42,
+	"message": "Irgendein toller Text der gespeichert werden soll"
 }
 
 DeleteBuddy:
@@ -35,14 +34,7 @@ GetConversations:
 GetMessages:
 {
 	"msgtype": 5,
-	"id": 2
-}
-
-SendMessage:
-{
-	"msgtype": 6,
-	"id": 42,
-	"message": "Irgendein toller Text der gespeichert werden soll"
+	"chatid": 2
 }
 
 /*********************************************************************/
@@ -62,17 +54,18 @@ Login:
 	"lastname": "lastname",
 	"quotation": "quotation",
 	"friendslist" : [
-		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "id": 1 },
-		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "id": 2 },
+		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 1 },
+		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 2 },
 	],
 }
 
 Message:
 {
 	"msgtype": 2,
-	"nickname": "author",
-	"content": "MessageContent",
-	"datetime": "datetime"
+	"chatid": 42,
+	"author": "Chris",
+	"date": "2016-01-18 10:24:32",
+	"message": "Eine neue Nachricht von einem anderen Nutzer"
 }
 
 DeleteBuddy:
@@ -93,21 +86,11 @@ GetConversations:
 GetMessages:
 {
 	"msgtype": 5,
-	"id": 1,
+	"chatid": 1,
 	"messages":[
 		{ "id": 1, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 2, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 3, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 4, "nickname": "author", "date": "date", "content": "Message-content" }
 	]
-}
-
-// Diese Nachricht bekommt der Client um über neue Nachrichten informiert zu werden, die
-// von einem anderen Client geschickt wurden.
-SendMessage:
-{
-	"msgtype": 6,
-	"id": 42,
-	"author": "Chris",
-	"message": "Eine neue Nachricht von einem anderen Nutzer"
 }

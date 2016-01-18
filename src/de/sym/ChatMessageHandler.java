@@ -36,7 +36,6 @@ public class ChatMessageHandler implements Whole<String> {
 		DELETEBUDDY, // 3
 		GETCONVERSATIONS, // 4
 		GETMESSAGES, // 5
-		SENDMESSAGE // 6
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList, Connection connection) {
@@ -77,9 +76,7 @@ public class ChatMessageHandler implements Whole<String> {
 			break;
 
 		case MESSAGE:
-			String msg = "Message received: " + message;
-			System.err.println(msg);
-			sendResponse(msg);
+			handleSendMessage(jsonObject);
 			break;
 
 		case DELETEBUDDY:
@@ -95,10 +92,6 @@ public class ChatMessageHandler implements Whole<String> {
 			
 		case GETMESSAGES:
 			handleGetMessages(jsonObject);
-			break;
-			
-		case SENDMESSAGE:
-			handleSendMessage(jsonObject);
 			break;
 
 		default:
@@ -152,6 +145,7 @@ public class ChatMessageHandler implements Whole<String> {
 						response.add("msgtype", 6);
 						response.add("id", chatId);
 						response.add("author", nickname);
+						response.add("date", "2016-01-01 12:42:21"); // temporary
 						response.add("message", message);
 						messageHandler.sendResponse(response.build().toString());
 					}
@@ -415,8 +409,6 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.GETCONVERSATIONS;
 		case 5:
 			return MessageType.GETMESSAGES;
-		case 6:
-			return MessageType.SENDMESSAGE;
 		default:
 			return MessageType.INVALID;
 		}
