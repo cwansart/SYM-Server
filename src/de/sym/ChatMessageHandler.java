@@ -140,7 +140,11 @@ public class ChatMessageHandler implements Whole<String> {
 			
 			while(resultSet.next()) {
 				String nickname2 = resultSet.getString(1);
+				System.err.println("BLA");
 				for(ChatMessageHandler messageHandler: messageHandlerList) {
+					System.err.println("BLUB");
+					System.err.println("NICK1: " + nickname);
+					System.err.println("NICK2: " + nickname2);
 					if(messageHandler.getNickname().equals(nickname2)) {
 						JsonObjectBuilder response = Json.createObjectBuilder();
 						response.add("msgtype", 6);

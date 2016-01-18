@@ -102,9 +102,9 @@ INSERT INTO message (nickname, chat_id, content) VALUES
 ('Chris', 5, 'Hey du :-) Na wie geht\'s?'),
 ('Larr', 5, 'Alles gut, und selbst?'),
 ('Chris', 5, 'Auch gut, danke. :D'),
-('Pauli', 6, 'Lass mal tanzen gehen!'),
+('Chris', 6, 'Lass mal tanzen gehen!'),
 ('Larr', 6, 'Klar gerne, wann denn?'),
-('Pauli', 6, 'Freitag??'),
+('Chris', 6, 'Freitag??'),
 ('Larr', 6, 'OK, bin dann um 8 bei dir');
 
 -- ----------------------------------------------------------------------------
