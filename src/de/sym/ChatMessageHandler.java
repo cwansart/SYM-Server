@@ -116,7 +116,7 @@ public class ChatMessageHandler implements Whole<String> {
 		int chatId;
 		String message;
 		try {
-			chatId = jsonObject.getInt("chatid");
+			chatId = jsonObject.getInt("id");
 			message = jsonObject.getString("message");
 		} catch(NullPointerException e) {
 			System.err.println("Message didn't contain a chat id or message");
@@ -172,7 +172,7 @@ public class ChatMessageHandler implements Whole<String> {
 		
 		int id;
 		try {
-			id = jsonObject.getInt("chatid");
+			id = jsonObject.getInt("id");
 		} catch(NullPointerException e) {
 			System.err.println("Message didn't contain a chat id");
 			sendResponse("Couldn't get message. Unknown ID");
