@@ -132,9 +132,10 @@ public class ChatMessageHandler implements Whole<String> {
 		}
 		
 		// Get all users of the current chat to iterate over and notify users of new messages.
-		sql = "SELECT nickname FROM chat_user WHERE chat_id = 6"; // AND nickname != ?"; // zu Debugging-Zwecken auskommentiert
+		sql = "SELECT nickname FROM chat_user WHERE chat_id =?"; // AND nickname != ?"; // zu Debugging-Zwecken auskommentiert
 		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			//preparedStatement.setString(1, nickname);
+			preparedStatement.setInt(1, chatId);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			
 			while(resultSet.next()) {
