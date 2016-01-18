@@ -170,9 +170,9 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 		
-		int chatId;
+		int id;
 		try {
-			chatId = jsonObject.getInt("chatid");
+			id = jsonObject.getInt("chatid");
 		} catch(NullPointerException e) {
 			System.err.println("Message didn't contain a chat id");
 			sendResponse("Couldn't get message. Unknown ID");
@@ -181,13 +181,13 @@ public class ChatMessageHandler implements Whole<String> {
 		
 		String sql = "SELECT id, nickname, date, content FROM `message` WHERE chat_id =?";
 		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			preparedStatement.setInt(1,  chatId);
+			preparedStatement.setInt(1,  id);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			
 			
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 5);
-			response.add("chatid", chatId);
+			response.add("id", id);
 			
 			JsonArrayBuilder messages = Json.createArrayBuilder();
 			while(resultSet.next()) {

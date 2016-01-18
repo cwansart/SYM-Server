@@ -35,13 +35,13 @@ GetConversations:
 GetMessages:
 {
 	"msgtype": 5,
-	"chatid": 2
+	"id": 2
 }
 
 SendMessage:
 {
 	"msgtype": 6,
-	"chatid": 42,
+	"id": 42,
 	"message": "Irgendein toller Text der gespeichert werden soll"
 }
 
@@ -62,8 +62,8 @@ Login:
 	"lastname": "lastname",
 	"quotation": "quotation",
 	"friendslist" : [
-		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 1 },
-		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 2 },
+		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "id": 1 },
+		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "id": 2 },
 	],
 }
 
@@ -93,7 +93,7 @@ GetConversations:
 GetMessages:
 {
 	"msgtype": 5,
-	"chatid": 1,
+	"id": 1,
 	"messages":[
 		{ "id": 1, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 2, "nickname": "author", "date": "date", "content": "Message-content" },
@@ -107,7 +107,7 @@ GetMessages:
 SendMessage:
 {
 	"msgtype": 6,
-	"chatid": 42,
+	"id": 42,
 	"author": "Chris",
 	"message": "Eine neue Nachricht von einem anderen Nutzer"
 }
