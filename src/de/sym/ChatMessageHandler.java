@@ -150,7 +150,7 @@ public class ChatMessageHandler implements Whole<String> {
 					if(messageHandler.getNickname().equals(nickname2)) {
 						JsonObjectBuilder response = Json.createObjectBuilder();
 						response.add("msgtype", 6);
-						response.add("chatid", chatId);
+						response.add("id", chatId);
 						response.add("author", nickname);
 						response.add("message", message);
 						messageHandler.sendResponse(response.build().toString());
@@ -368,7 +368,7 @@ public class ChatMessageHandler implements Whole<String> {
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
 				currentLine.add("quotation", resultSet.getString(2));
-				currentLine.add("chatid", resultSet.getInt(3));
+				currentLine.add("id", resultSet.getInt(3));
 				friendslist.add(currentLine);
 			}
 
