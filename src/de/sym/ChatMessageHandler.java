@@ -38,14 +38,15 @@ public class ChatMessageHandler implements Whole<String> {
 		GETMESSAGES, // 5
 	}
 
-	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList, Connection connection) {
+	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList,
+			Connection connection) {
 		this.remote = session.getBasicRemote();
 		this.session = session;
 		this.sessionList = sessionList;
 		this.messageHandlerList = messageHandlerList;
 		this.connection = connection;
 	}
-	
+
 	String getNickname() {
 		return nickname;
 	}
@@ -81,15 +82,16 @@ public class ChatMessageHandler implements Whole<String> {
 
 		case DELETEBUDDY:
 			// Hier müssen wir noch überlegen was mit dem buddy passiert.
-			// Im Client des Buddys muss die Freundschft ja auch gelöscht werden.
+			// Im Client des Buddys muss die Freundschft ja auch gelöscht
+			// werden.
 			// Wie soll er z.B. informiert werden?
 			handleDeleteBuddy(jsonObject);
 			break;
-			
+
 		case GETCONVERSATIONS:
 			handleGetConversations(jsonObject);
 			break;
-			
+
 		case GETMESSAGES:
 			handleGetMessages(jsonObject);
 			break;
@@ -101,25 +103,25 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	private void handleSendMessage(JsonObject jsonObject) {
-		if(!isLoggedIn) {
+		if (!isLoggedIn) {
 			sendResponse("Not logged in");
 			return;
 		}
-		
+
 		int chatId;
 		String message;
 		try {
 			chatId = jsonObject.getInt("id");
 			message = jsonObject.getString("message");
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			System.err.println("Message didn't contain a chat id or message");
 			sendResponse("Couldn't send message. Missing ID or message-");
 			return;
 		}
-		
+
 		// Insert message into database
 		String sql = "INSERT INTO message (nickname, chat_id, content) VALUES (?, ?, ?)";
-		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);
 			preparedStatement.setInt(2, chatId);
 			preparedStatement.setString(3, message);
@@ -130,28 +132,31 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 			return;
 		}
-		
-		// Get all users of the current chat to iterate over and notify users of new messages.
-		sql = "SELECT nickname FROM chat_user WHERE chat_id =?"; // AND nickname != ?"; // zu Debugging-Zwecken auskommentiert
-		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			//preparedStatement.setString(1, nickname);
+
+		// Get all users of the current chat to iterate over and notify users of
+		// new messages.
+		sql = "SELECT nickname FROM chat_user WHERE chat_id =?"; // AND nickname
+																	// != ?"; //
+																	// zu
+																	// Debugging-Zwecken
+																	// auskommentiert
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			// preparedStatement.setString(1, nickname);
 			preparedStatement.setInt(1, chatId);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
-			while(resultSet.next()) {
+
+			while (resultSet.next()) {
 				String nickname2 = resultSet.getString(1);
-				System.err.println("BLA");
-				for(ChatMessageHandler messageHandler: messageHandlerList) {
-					System.err.println("BLUB");
-					System.err.println("NICK1: " + nickname);
-					System.err.println("NICK2: " + nickname2);
-					if(messageHandler.getNickname().equals(nickname2)) {
+				for (ChatMessageHandler messageHandler : messageHandlerList) {
+					if (messageHandler.getNickname().equals(nickname2)) {
 						JsonObjectBuilder response = Json.createObjectBuilder();
-						response.add("msgtype", 6);
+						response.add("msgtype", 2);
 						response.add("id", chatId);
 						response.add("author", nickname);
 						response.add("date", "2016-01-01 12:42:21"); // temporary
 						response.add("message", message);
+
+						System.err.println("Sending response to " + messageHandler.getNickname());
 						messageHandler.sendResponse(response.build().toString());
 					}
 				}
@@ -164,37 +169,36 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	private void handleGetMessages(JsonObject jsonObject) {
-		if(!isLoggedIn){
+		if (!isLoggedIn) {
 			sendResponse("Not logged in");
 			return;
 		}
-		
+
 		int id;
 		try {
 			id = jsonObject.getInt("id");
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			System.err.println("Message didn't contain a chat id");
 			sendResponse("Couldn't get message. Unknown ID");
 			return;
 		}
-		
+
 		String sql = "SELECT id, nickname, date, content FROM `message` WHERE chat_id =?";
-		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			preparedStatement.setInt(1,  id);
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setInt(1, id);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
-			
+
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 5);
 			response.add("id", id);
-			
+
 			JsonArrayBuilder messages = Json.createArrayBuilder();
-			while(resultSet.next()) {
+			while (resultSet.next()) {
 				String date = resultSet.getString(3);
-				if(date.endsWith(".0")) {
-					date = date.substring(0, date.length()-2);
+				if (date.endsWith(".0")) {
+					date = date.substring(0, date.length() - 2);
 				}
-				
+
 				JsonObjectBuilder message = Json.createObjectBuilder();
 				message.add("id", resultSet.getInt(1));
 				message.add("nickname", resultSet.getString(2));
@@ -205,7 +209,7 @@ public class ChatMessageHandler implements Whole<String> {
 			System.out.println("messages: " + messages.toString());
 			response.add("messages", messages.build());
 			sendResponse(response.build().toString());
-			
+
 		} catch (SQLException e) {
 			System.err.println("Couldn't get messages of user " + nickname);
 			e.printStackTrace();
@@ -213,25 +217,22 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	private void handleGetConversations(JsonObject jsonObject) {
-		if(!isLoggedIn){
+		if (!isLoggedIn) {
 			sendResponse("Not logged in");
 			return;
 		}
-		
-		String sql = "SELECT chat.id, title "
-				+ "FROM chat, chat_user "
-				+ "WHERE chat.title IS NOT NULL "
-				+ "AND chat.id = chat_user.chat_id "
-				+ "AND chat_user.nickname = ?";
-		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+		String sql = "SELECT chat.id, title " + "FROM chat, chat_user " + "WHERE chat.title IS NOT NULL "
+				+ "AND chat.id = chat_user.chat_id " + "AND chat_user.nickname = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
+
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 4);
-			
+
 			JsonArrayBuilder conversations = Json.createArrayBuilder();
-			while(resultSet.next()) {
+			while (resultSet.next()) {
 				JsonObjectBuilder conversation = Json.createObjectBuilder();
 				conversation.add("id", resultSet.getInt(1));
 				conversation.add("title", resultSet.getString(2));
@@ -239,7 +240,7 @@ public class ChatMessageHandler implements Whole<String> {
 			}
 			response.add("conversations", conversations.build());
 			sendResponse(response.build().toString());
-			
+
 		} catch (SQLException e) {
 			System.err.println("Couldn't get conversations of user " + nickname);
 			e.printStackTrace();
@@ -321,16 +322,17 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 		}
 	}
+
 	private void handleDeleteBuddy(JsonObject jsonObject) {
-		if(!isLoggedIn){
+		if (!isLoggedIn) {
 			sendResponse("Not logged in");
 			return;
 		}
-		
+
 		String buddyname;
 		try {
 			buddyname = jsonObject.getString("buddyname");
-		} catch(NullPointerException e) {
+		} catch (NullPointerException e) {
 			System.err.println("Delete buddy failed, missing buddyname");
 			sendResponse("Delete buddy failed, missing buddyname");
 			return;
@@ -342,21 +344,27 @@ public class ChatMessageHandler implements Whole<String> {
 			preparedStatement.setString(2, buddyname);
 			preparedStatement.setString(3, nickname);
 			preparedStatement.setString(4, buddyname);
-			System.err.println(preparedStatement.toString());
 			preparedStatement.execute();
 		} catch (SQLException e) {
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
+		
+		for(ChatMessageHandler messageHandler: this.messageHandlerList) {
+			System.err.println("NICK1: " + messageHandler.getNickname());
+			if(messageHandler.getNickname().equals(buddyname)) {
+				JsonObjectBuilder response = Json.createObjectBuilder();
+				response.add("msgtype", 3);
+				response.add("nickname", nickname);
+				messageHandler.sendResponse(response.build().toString());
+			}
+		}
 	}
 
 	private JsonArray getFriendsList(String nickname) {
-		String sql = "SELECT nickname, quotation, chatID "
-				+ "FROM user, user_user "
-				+ "WHERE (user.nickname = user_user.nickname2 "
-				+ "AND user_user.nickname1 = ?) "
-				+ "OR (user.nickname = user_user.nickname1 "
-				+ "AND user_user.nickname2 = ?) ";
+		String sql = "SELECT nickname, quotation, chatID " + "FROM user, user_user "
+				+ "WHERE (user.nickname = user_user.nickname2 " + "AND user_user.nickname1 = ?) "
+				+ "OR (user.nickname = user_user.nickname1 " + "AND user_user.nickname2 = ?) ";
 		try (PreparedStatement statement = connection.prepareStatement(sql)) {
 			statement.setString(1, nickname);
 			statement.setString(2, nickname);

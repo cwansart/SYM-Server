@@ -43,7 +43,7 @@ INSERT INTO user (nickname, firstname, lastname, quotation, password) VALUES
 ('Chris', 'Christian', 'Wansart', 'Pinguuuus :D', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG'),
 ('Ceme', 'Lukas', 'Hannigbrink', ':O', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG'),
 ('Larr', 'Larissa', 'Schenk', 'Katzööööön <3', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG'),
-('Pauli', 'Paulina', 'Giercza', 'Wodka <3', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG!'),
+('Pauli', 'Paulina', 'Giercza', 'Wodka <3', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG'),
 ('stalker', 'Raphael', 'Grewe', 'blubbbbbbbbbbbbbb', '$2a$10$j.nc6PJ94ZdE5As97FoRGu1Md.HX2f7T2j9rsxSZrJwrdnclFOZLG');
 
 -- ----------------------------------------------------------------------------

@@ -17,7 +17,7 @@ import javax.websocket.server.ServerEndpoint;
 public class ChatServer {
 	List<User> userList = new ArrayList<>();
 	List<Session> sessionList = new ArrayList<>();
-	List<ChatMessageHandler> messageHandlerList = new ArrayList<>();
+	static List<ChatMessageHandler> messageHandlerList = new ArrayList<>();
 	Connection connection = null;
 
 	public ChatServer() {
