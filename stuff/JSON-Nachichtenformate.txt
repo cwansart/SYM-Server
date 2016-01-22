@@ -46,7 +46,7 @@ AddFriend:
 
 // Diese Nachricht schickt der Freund, der eine Anfrage bekommen hat.
 // Er kann die freundschaft akzeptieren oder sie ablehnen.
-AcceptFriendship:
+FriendshipRequest:
 {
 	"msgtype": 7,
 	"nickname": "newbuddy",
@@ -117,12 +117,14 @@ GetMessages:
 AddFriend:
 {
 	"msgtype": 6,
+	"nickname": "buddyname",
+	"chatid": 2,
 	"successful": false,
 	"error": "not found"	// alternativ: "not accepted", "delayed"
 }
 
 // Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
-AcceptFriendship:
+FriendshipRequest:
 {
 	"msgtype": 7,
 	"nickname": "newbuddy"
