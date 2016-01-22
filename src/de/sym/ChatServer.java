@@ -42,7 +42,7 @@ public class ChatServer {
 		System.err.println("Opened Session:" + session.toString());
 		ChatMessageHandler messageHandler = new ChatMessageHandler(session, sessionList, messageHandlerList, connection);
 		session.addMessageHandler(messageHandler);
-		this.messageHandlerList.add(messageHandler);
+		ChatServer.messageHandlerList.add(messageHandler);
 		this.sessionList.add(session);
 	}
 
