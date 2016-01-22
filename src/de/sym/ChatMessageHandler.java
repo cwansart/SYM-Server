@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.json.Json;
@@ -135,11 +137,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 		// Get all users of the current chat to iterate over and notify users of
 		// new messages.
-		sql = "SELECT nickname FROM chat_user WHERE chat_id =?"; // AND nickname
-																	// != ?"; //
-																	// zu
-																	// Debugging-Zwecken
-																	// auskommentiert
+		sql = "SELECT nickname FROM chat_user WHERE chat_id =?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			// preparedStatement.setString(1, nickname);
 			preparedStatement.setInt(1, chatId);
@@ -153,10 +151,11 @@ public class ChatMessageHandler implements Whole<String> {
 						response.add("msgtype", 2);
 						response.add("id", chatId);
 						response.add("author", nickname);
-						response.add("date", "2016-01-01 12:42:21"); // temporary
+						
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						response.add("date", dateFormat.format(new Date()));
+						
 						response.add("message", message);
-
-						System.err.println("Sending response to " + messageHandler.getNickname());
 						messageHandler.sendResponse(response.build().toString());
 					}
 				}
