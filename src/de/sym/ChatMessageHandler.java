@@ -99,159 +99,13 @@ public class ChatMessageHandler implements Whole<String> {
 			break;
 
 		default:
-			sendResponse("Received invalid msgtype");
+			sendResponse("{\"msgtype\": 0}");
 			break;
 		}
 	}
 
-	private void handleSendMessage(JsonObject jsonObject) {
-		if (!isLoggedIn) {
-			sendResponse("Not logged in");
-			return;
-		}
-
-		int chatId;
-		String message;
-		try {
-			chatId = jsonObject.getInt("id");
-			message = jsonObject.getString("message");
-		} catch (NullPointerException e) {
-			System.err.println("Message didn't contain a chat id or message");
-			sendResponse("Couldn't send message. Missing ID or message-");
-			return;
-		}
-
-		// Insert message into database
-		String sql = "INSERT INTO message (nickname, chat_id, content) VALUES (?, ?, ?)";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			preparedStatement.setString(1, nickname);
-			preparedStatement.setInt(2, chatId);
-			preparedStatement.setString(3, message);
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			System.err.println("Couldn't send the message.");
-			sendResponse("Couldn't send message.");
-			e.printStackTrace();
-			return;
-		}
-
-		// Get all users of the current chat to iterate over and notify users of
-		// new messages.
-		sql = "SELECT nickname FROM chat_user WHERE chat_id =?";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			// preparedStatement.setString(1, nickname);
-			preparedStatement.setInt(1, chatId);
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			while (resultSet.next()) {
-				String nickname2 = resultSet.getString(1);
-				for (ChatMessageHandler messageHandler : messageHandlerList) {
-					if (messageHandler.getNickname().equals(nickname2)) {
-						JsonObjectBuilder response = Json.createObjectBuilder();
-						response.add("msgtype", 2);
-						response.add("id", chatId);
-						response.add("author", nickname);
-						
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						response.add("date", dateFormat.format(new Date()));
-						
-						response.add("message", message);
-						messageHandler.sendResponse(response.build().toString());
-					}
-				}
-			}
-		} catch (SQLException e) {
-			sendResponse("Couldn't send message.");
-			System.err.println("Could't send message due to errors");
-			e.printStackTrace();
-		}
-	}
-
-	private void handleGetMessages(JsonObject jsonObject) {
-		if (!isLoggedIn) {
-			sendResponse("Not logged in");
-			return;
-		}
-
-		int id;
-		try {
-			id = jsonObject.getInt("id");
-		} catch (NullPointerException e) {
-			System.err.println("Message didn't contain a chat id");
-			sendResponse("Couldn't get message. Unknown ID");
-			return;
-		}
-
-		String sql = "SELECT id, nickname, date, content FROM `message` WHERE chat_id =?";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			preparedStatement.setInt(1, id);
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			JsonObjectBuilder response = Json.createObjectBuilder();
-			response.add("msgtype", 5);
-			response.add("id", id);
-
-			JsonArrayBuilder messages = Json.createArrayBuilder();
-			while (resultSet.next()) {
-				String date = resultSet.getString(3);
-				if (date.endsWith(".0")) {
-					date = date.substring(0, date.length() - 2);
-				}
-
-				JsonObjectBuilder message = Json.createObjectBuilder();
-				message.add("id", resultSet.getInt(1));
-				message.add("nickname", resultSet.getString(2));
-				message.add("date", date);
-				message.add("content", resultSet.getString(4));
-				messages.add(message);
-			}
-			System.out.println("messages: " + messages.toString());
-			response.add("messages", messages.build());
-			sendResponse(response.build().toString());
-
-		} catch (SQLException e) {
-			System.err.println("Couldn't get messages of user " + nickname);
-			e.printStackTrace();
-		}
-	}
-
-	private void handleGetConversations(JsonObject jsonObject) {
-		if (!isLoggedIn) {
-			sendResponse("Not logged in");
-			return;
-		}
-
-		String sql = "SELECT chat.id, title " + "FROM chat, chat_user " + "WHERE chat.title IS NOT NULL "
-				+ "AND chat.id = chat_user.chat_id " + "AND chat_user.nickname = ?";
-		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-			preparedStatement.setString(1, nickname);
-			ResultSet resultSet = preparedStatement.executeQuery();
-
-			JsonObjectBuilder response = Json.createObjectBuilder();
-			response.add("msgtype", 4);
-
-			JsonArrayBuilder conversations = Json.createArrayBuilder();
-			while (resultSet.next()) {
-				int id = resultSet.getInt(1);
-				
-				JsonObjectBuilder conversation = Json.createObjectBuilder();
-				conversation.add("id", id);
-				conversation.add("title", resultSet.getString(2));
-				conversation.add("participants", getParticipants(id));
-				
-				conversations.add(conversation);
-			}
-			response.add("conversations", conversations.build());
-			sendResponse(response.build().toString());
-
-		} catch (SQLException e) {
-			System.err.println("Couldn't get conversations of user " + nickname);
-			e.printStackTrace();
-		}
-	}
-
 	/**
-	 * Handles login
+	 * Handles LOGIN (msgtype 1)
 	 * 
 	 * @param jsonObject
 	 */
@@ -262,14 +116,15 @@ public class ChatMessageHandler implements Whole<String> {
 				sessionList.remove(this.session);
 				session.close();
 			} catch (IOException e) {
-				System.err.println("Couldn't close session after 3 failed login attempts");
 				e.printStackTrace();
+			} finally {
+				sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"3 login attempts failed\"}");
 			}
 		}
 
 		// Already logged in
 		if (isLoggedIn) {
-			sendResponse("Already logged in");
+			sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"already logged in\"}");
 			return;
 		}
 
@@ -279,7 +134,7 @@ public class ChatMessageHandler implements Whole<String> {
 			plaintext = jsonObject.getString("password");
 		} catch (NullPointerException e) {
 			System.err.println("Login attempt with invalid user");
-			sendResponse("Login failed");
+			sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"login failed\"}");
 			return;
 		}
 
@@ -305,6 +160,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 					JsonObjectBuilder response = Json.createObjectBuilder();
 					response.add("msgtype", 1);
+					response.add("successful",  true);
 					response.add("nickname", nickname);
 					response.add("firstname", firstname);
 					response.add("lastname", lastname);
@@ -313,22 +169,98 @@ public class ChatMessageHandler implements Whole<String> {
 
 					sendResponse(response.build().toString());
 				} else {
-					sendResponse("Login failed");
+					sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"login failed\"}");
 				}
 			} else {
-				sendResponse("Login failed");
+				sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"login failed\"}");
 			}
 			this.loginAttempts++;
 
 		} catch (SQLException e) {
+			sendResponse("{\"msgtype\": 1, \"successful\": false, \"error\": \"login failed\"}");
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * Hanldes SENDMESSAGE (msgtype 2)
+	 * 
+	 * @param jsonObject
+	 */
+	private void handleSendMessage(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 2, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+
+		int chatId;
+		String message;
+		try {
+			chatId = jsonObject.getInt("id");
+			message = jsonObject.getString("message");
+		} catch (NullPointerException e) {
+			System.err.println("Message didn't contain a chat id or message");
+			sendResponse("{\"msgtype\": 2, \"successful\": false, \"error\": \"missing id or message\"}");
+			return;
+		}
+
+		// Insert message into database
+		String sql = "INSERT INTO message (nickname, chat_id, content) VALUES (?, ?, ?)";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			preparedStatement.setInt(2, chatId);
+			preparedStatement.setString(3, message);
+			preparedStatement.executeUpdate();
+		} catch (SQLException e) {
+			System.err.println("Couldn't send/save the message.");
+			sendResponse("{\"msgtype\": 2, \"successful\": false, \"error\": \"couldn't save the message\"}");
+			e.printStackTrace();
+			return;
+		}
+
+		// Get all users of the current chat to iterate over and notify users of
+		// new messages.
+		sql = "SELECT nickname FROM chat_user WHERE chat_id =?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			// preparedStatement.setString(1, nickname);
+			preparedStatement.setInt(1, chatId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			while (resultSet.next()) {
+				String nickname2 = resultSet.getString(1);
+				for (ChatMessageHandler messageHandler : messageHandlerList) {
+					if (messageHandler.getNickname().equals(nickname2)) {
+						JsonObjectBuilder response = Json.createObjectBuilder();
+						response.add("msgtype", 2);
+						response.add("successful",  true);
+						response.add("id", chatId);
+						response.add("author", nickname);
+
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						response.add("date", dateFormat.format(new Date()));
+
+						response.add("message", message);
+						messageHandler.sendResponse(response.build().toString());
+					}
+				}
+			}
+		} catch (SQLException e) {
+			sendResponse("Couldn't send message.");
+			System.err.println("Could't send message due to errors");
+			sendResponse("{\"msgtype\": 2, \"successful\": false, \"error\": \"couldn't save the message\"}");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Handles DELETEBUDDY (msgtype 3)
+	 * 
+	 * @param jsonObject
+	 */
 	private void handleDeleteBuddy(JsonObject jsonObject) {
 		if (!isLoggedIn) {
-			sendResponse("Not logged in");
+			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
 
@@ -337,7 +269,7 @@ public class ChatMessageHandler implements Whole<String> {
 			buddyname = jsonObject.getString("buddyname");
 		} catch (NullPointerException e) {
 			System.err.println("Delete buddy failed, missing buddyname");
-			sendResponse("Delete buddy failed, missing buddyname");
+			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"missing buddyname\"}");
 			return;
 		}
 
@@ -349,22 +281,130 @@ public class ChatMessageHandler implements Whole<String> {
 			preparedStatement.setString(4, buddyname);
 			preparedStatement.execute();
 		} catch (SQLException e) {
+			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"delete buddy failed\"}");
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
-		
-		for(ChatMessageHandler messageHandler: this.messageHandlerList) {
+
+		for (ChatMessageHandler messageHandler : this.messageHandlerList) {
 			System.err.println("NICK1: " + messageHandler.getNickname());
-			if(messageHandler.getNickname().equals(buddyname)) {
+			if (messageHandler.getNickname().equals(buddyname)) {
 				JsonObjectBuilder response = Json.createObjectBuilder();
 				response.add("msgtype", 3);
+				response.add("successful",  true);
 				response.add("nickname", nickname);
 				messageHandler.sendResponse(response.build().toString());
 			}
 		}
 	}
 
+	/**
+	 * Handles GETCONVERSATIONS (msgtype 4)
+	 * 
+	 * @param jsonObject
+	 */
+	private void handleGetConversations(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+
+		String sql = "SELECT chat.id, title " + "FROM chat, chat_user " + "WHERE chat.title IS NOT NULL "
+				+ "AND chat.id = chat_user.chat_id " + "AND chat_user.nickname = ?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			JsonObjectBuilder response = Json.createObjectBuilder();
+			response.add("msgtype", 4);
+			response.add("successful",  true);
+
+			JsonArrayBuilder conversations = Json.createArrayBuilder();
+			while (resultSet.next()) {
+				int id = resultSet.getInt(1);
+
+				JsonObjectBuilder conversation = Json.createObjectBuilder();
+				conversation.add("id", id);
+				conversation.add("title", resultSet.getString(2));
+				conversation.add("participants", getParticipants(id));
+
+				conversations.add(conversation);
+			}
+			response.add("conversations", conversations.build());
+			sendResponse(response.build().toString());
+
+		} catch (SQLException e) {
+			System.err.println("Couldn't get conversations of user " + nickname);
+			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"couldn't get conversations\"}");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Handles GETMESSAGES (msgtype 5)
+	 * 
+	 * @param jsonObject
+	 */
+	private void handleGetMessages(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 5, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+
+		int id;
+		try {
+			id = jsonObject.getInt("id");
+		} catch (NullPointerException e) {
+			System.err.println("Message didn't contain a chat id");
+			sendResponse("{\"msgtype\": 5, \"successful\": false, \"error\": \"unknown id\"}");
+			return;
+		}
+
+		String sql = "SELECT id, nickname, date, content FROM `message` WHERE chat_id =?";
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setInt(1, id);
+			ResultSet resultSet = preparedStatement.executeQuery();
+
+			JsonObjectBuilder response = Json.createObjectBuilder();
+			response.add("msgtype", 5);
+			response.add("successful",  true);
+			response.add("id", id);
+
+			JsonArrayBuilder messages = Json.createArrayBuilder();
+			while (resultSet.next()) {
+				String date = resultSet.getString(3);
+				if (date.endsWith(".0")) {
+					date = date.substring(0, date.length() - 2);
+				}
+
+				JsonObjectBuilder message = Json.createObjectBuilder();
+				message.add("id", resultSet.getInt(1));
+				message.add("nickname", resultSet.getString(2));
+				message.add("date", date);
+				message.add("content", resultSet.getString(4));
+				messages.add(message);
+			}
+			System.out.println("messages: " + messages.toString());
+			response.add("messages", messages.build());
+			sendResponse(response.build().toString());
+
+		} catch (SQLException e) {
+			System.err.println("Couldn't get messages of user " + nickname);
+			sendResponse("{\"msgtype\": 5, \"successful\": false, \"error\": \"couldn't get messages\"}");
+			e.printStackTrace();
+		}
+	}
+
+	// ==============================================================================================================
+	// Other private methods that we use in other methods.
+	/**
+	 * Gets the friendslist of a certain user `nickname`
+	 * 
+	 * @param nickname
+	 * @return
+	 */
 	private JsonArray getFriendsList(String nickname) {
+		JsonArrayBuilder friendslist = Json.createArrayBuilder();
 		String sql = "SELECT nickname, quotation, chatID " + "FROM user, user_user "
 				+ "WHERE (user.nickname = user_user.nickname2 " + "AND user_user.nickname1 = ?) "
 				+ "OR (user.nickname = user_user.nickname1 " + "AND user_user.nickname2 = ?) ";
@@ -373,7 +413,7 @@ public class ChatMessageHandler implements Whole<String> {
 			statement.setString(2, nickname);
 			System.err.println(statement.toString());
 			ResultSet resultSet = statement.executeQuery();
-			JsonArrayBuilder friendslist = Json.createArrayBuilder();
+
 			while (resultSet.next()) {
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
@@ -382,30 +422,34 @@ public class ChatMessageHandler implements Whole<String> {
 				friendslist.add(currentLine);
 			}
 
-			return friendslist.build();
-
 		} catch (SQLException e) {
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
-		return null;
+		return friendslist.build();
 	}
-	
+
+	/**
+	 * Gets the participants of a certain chat or conversation.
+	 * 
+	 * @param chatId
+	 * @return
+	 */
 	private JsonArray getParticipants(int chatId) {
 		JsonArrayBuilder participants = Json.createArrayBuilder();
 		String sql = "SELECT nickname FROM chat_user WHERE chat_id = ?";
-		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setInt(1, chatId);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
-			while(resultSet.next()) {
+
+			while (resultSet.next()) {
 				participants.add(resultSet.getString(1));
 			}
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return participants.build();
 	}
 
