@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -38,7 +39,8 @@ public class ChatMessageHandler implements Whole<String> {
 		DELETEBUDDY, // 3
 		GETCONVERSATIONS, // 4
 		GETMESSAGES, // 5
-		ADDFRIEND	// 6
+		ADDFRIEND, // 6
+		FRIENDSHIPREQUEST // 7
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList,
@@ -98,9 +100,13 @@ public class ChatMessageHandler implements Whole<String> {
 		case GETMESSAGES:
 			handleGetMessages(jsonObject);
 			break;
-			
+
 		case ADDFRIEND:
 			handleAddFriend(jsonObject);
+			break;
+
+		case FRIENDSHIPREQUEST:
+			handleFriendshipRequest(jsonObject);
 			break;
 
 		default:
@@ -165,7 +171,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 					JsonObjectBuilder response = Json.createObjectBuilder();
 					response.add("msgtype", 1);
-					response.add("successful",  true);
+					response.add("successful", true);
 					response.add("nickname", nickname);
 					response.add("firstname", firstname);
 					response.add("lastname", lastname);
@@ -238,7 +244,7 @@ public class ChatMessageHandler implements Whole<String> {
 					if (messageHandler.getNickname().equals(nickname2)) {
 						JsonObjectBuilder response = Json.createObjectBuilder();
 						response.add("msgtype", 2);
-						response.add("successful",  true);
+						response.add("successful", true);
 						response.add("id", chatId);
 						response.add("author", nickname);
 
@@ -296,7 +302,7 @@ public class ChatMessageHandler implements Whole<String> {
 			if (messageHandler.getNickname().equals(buddyname)) {
 				JsonObjectBuilder response = Json.createObjectBuilder();
 				response.add("msgtype", 3);
-				response.add("successful",  true);
+				response.add("successful", true);
 				response.add("nickname", nickname);
 				messageHandler.sendResponse(response.build().toString());
 			}
@@ -322,7 +328,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 4);
-			response.add("successful",  true);
+			response.add("successful", true);
 
 			JsonArrayBuilder conversations = Json.createArrayBuilder();
 			while (resultSet.next()) {
@@ -372,7 +378,7 @@ public class ChatMessageHandler implements Whole<String> {
 
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 5);
-			response.add("successful",  true);
+			response.add("successful", true);
 			response.add("id", id);
 
 			JsonArrayBuilder messages = Json.createArrayBuilder();
@@ -399,9 +405,10 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * handles AddFriend (msgtype 6)
+	 * handles AddFriend (msgtype 6 and msgtype 7)
+	 * 
 	 * @param jsonObject
 	 */
 	private void handleAddFriend(JsonObject jsonObject) {
@@ -409,46 +416,117 @@ public class ChatMessageHandler implements Whole<String> {
 			sendResponse("{\"msgtype\": 6, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
-		
+
 		String nickname;
-		
+
 		try {
 			nickname = jsonObject.getString("nickname");
 		} catch (NullPointerException e) {
 			System.err.println("Message didn't contain a nickname");
-			sendResponse("Couldn't send message. Missing nickname-");
+			sendResponse("{\"msgtype\": 6, \"successful\": false, \"error\": \"missing nickname\"}");
 			return;
 		}
-		
+
 		String sql = "SELECT nickname FROM user WHERE nickname =?";
-		
+
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
+
 			String buddyname = null;
 			while (resultSet.next()) {
 				buddyname = resultSet.getString(1);
 			}
 			
+			JsonObjectBuilder notFoundResponse = Json.createObjectBuilder();
+			notFoundResponse.add("msgtype", 6);
+			notFoundResponse.add("successful", false);
+			notFoundResponse.add("error", "not found");
+
 			// Friend not found
-			if(buddyname == null) {
-				JsonObjectBuilder response = Json.createObjectBuilder();
-				response.add("msgtype", 6);
-				response.add("successful", false);
-				response.add("error", "not found");
-				sendResponse(response.build().toString());
+			if (buddyname == null) {
+				sendResponse(notFoundResponse.build().toString());
 			}
 			// found friend
 			else {
+				boolean found = false;
+				for (ChatMessageHandler messageHandler : messageHandlerList) {
+					if (messageHandler.getNickname().equals(buddyname)) {
+						found = true;
+						JsonObjectBuilder request = Json.createObjectBuilder();
+						request.add("msgtype", 7);
+						request.add("nickname", nickname);
+						messageHandler.sendResponse(request.build().toString());
+					}
+				}
 				
+				if(!found) {
+					sendResponse(notFoundResponse.build().toString());
+				}
 			}
 		} catch (SQLException e) {
-			sendResponse("Couldn't send message.");
+			sendResponse("{\"msgtype\": 6, \"successful\": false, \"error\": \"couldn't add friend\"}");
 			System.err.println("Could't send message due to errors");
 			e.printStackTrace();
 		}
+	}
 
+	/**
+	 * Handles friendship requests
+	 * 
+	 * @param jsonObject
+	 */
+	private void handleFriendshipRequest(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+
+		String buddyname;
+		boolean accepted;
+		try {
+			buddyname = jsonObject.getString("nickname");
+			accepted = jsonObject.getBoolean("accepted");
+		} catch (NullPointerException e) {
+			sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"missing nickname or accepted\"}");
+			e.printStackTrace();
+			return;
+		}
+
+		int chatId = -1;
+		if (accepted) {
+			String sql = "SELECT add_chat(?, ?)";
+			try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+				preparedStatement.setString(1, nickname);
+				preparedStatement.setString(2, buddyname);
+				
+				ResultSet resultSet = preparedStatement.executeQuery();
+				while(resultSet.next()) {
+					chatId = resultSet.getInt(1);
+				}
+				
+			} catch (SQLException e) {
+				sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"couldn't add friend\"}");
+				e.printStackTrace();
+			}
+		}
+		
+		// Antwort msgtype 6
+		for(ChatMessageHandler messageHandler: messageHandlerList) {
+			if(messageHandler.getNickname().equals(buddyname)) {
+				JsonObjectBuilder response = Json.createObjectBuilder();
+				response.add("msgtype", 6);
+				response.add("successful", accepted);
+				
+				if(!accepted) {
+					response.add("error", "not accepted");
+				} else {
+					response.add("chatid", chatId);
+				}
+				
+				sendResponse(response.build().toString());
+			}
+		}
 	}
 
 	// ==============================================================================================================
@@ -545,6 +623,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.GETMESSAGES;
 		case 6:
 			return MessageType.ADDFRIEND;
+		case 7:
+			return MessageType.FRIENDSHIPREQUEST;
 		default:
 			return MessageType.INVALID;
 		}
