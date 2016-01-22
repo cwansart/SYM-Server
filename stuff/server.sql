@@ -10,6 +10,38 @@ DROP TABLE IF EXISTS message;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS user_user;
 
+-- stored function to add new chats
+DROP FUNCTION IF EXISTS add_chat;
+DELIMITER $$
+CREATE FUNCTION add_chat(nickname1 VARCHAR(255), nickname2 VARCHAR(255))
+  RETURNS INT
+BEGIN
+  DECLARE chatid INT;
+  
+  INSERT INTO chat VALUE();
+  SELECT chat.id INTO chatid
+  FROM chat
+  WHERE chat.id NOT IN (
+  	SELECT chat_user.chat_id
+  	FROM chat_user
+  )
+  ORDER BY id ASC
+  LIMIT 1;
+
+  INSERT INTO user_user
+  VALUES(nickname1, nickname2, chatid);
+
+  INSERT INTO chat_user
+  VALUES(nickname1, chatid);
+
+  INSERT INTO chat_user
+  VALUES(nickname2, chatid);
+
+  RETURN chatid;
+END;
+$$
+DELIMITER ;
+
 -- ----------------------------------------------------------------------------
 -- chat
 
