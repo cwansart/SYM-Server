@@ -38,6 +38,7 @@ public class ChatMessageHandler implements Whole<String> {
 		DELETEBUDDY, // 3
 		GETCONVERSATIONS, // 4
 		GETMESSAGES, // 5
+		ADDFRIEND	// 6
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList,
@@ -96,6 +97,10 @@ public class ChatMessageHandler implements Whole<String> {
 
 		case GETMESSAGES:
 			handleGetMessages(jsonObject);
+			break;
+			
+		case ADDFRIEND:
+			handleAddFriend(jsonObject);
 			break;
 
 		default:
@@ -394,6 +399,57 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * handles AddFriend (msgtype 6)
+	 * @param jsonObject
+	 */
+	private void handleAddFriend(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 6, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+		
+		String nickname;
+		
+		try {
+			nickname = jsonObject.getString("nickname");
+		} catch (NullPointerException e) {
+			System.err.println("Message didn't contain a nickname");
+			sendResponse("Couldn't send message. Missing nickname-");
+			return;
+		}
+		
+		String sql = "SELECT nickname FROM user WHERE nickname =?";
+		
+		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setString(1, nickname);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			String buddyname = null;
+			while (resultSet.next()) {
+				buddyname = resultSet.getString(1);
+			}
+			
+			// Friend not found
+			if(buddyname == null) {
+				JsonObjectBuilder response = Json.createObjectBuilder();
+				response.add("msgtype", 6);
+				response.add("successful", false);
+				response.add("error", "not found");
+				sendResponse(response.build().toString());
+			}
+			// found friend
+			else {
+				
+			}
+		} catch (SQLException e) {
+			sendResponse("Couldn't send message.");
+			System.err.println("Could't send message due to errors");
+			e.printStackTrace();
+		}
+
+	}
 
 	// ==============================================================================================================
 	// Other private methods that we use in other methods.
@@ -487,6 +543,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.GETCONVERSATIONS;
 		case 5:
 			return MessageType.GETMESSAGES;
+		case 6:
+			return MessageType.ADDFRIEND;
 		default:
 			return MessageType.INVALID;
 		}
