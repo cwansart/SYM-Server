@@ -233,9 +233,13 @@ public class ChatMessageHandler implements Whole<String> {
 
 			JsonArrayBuilder conversations = Json.createArrayBuilder();
 			while (resultSet.next()) {
+				int id = resultSet.getInt(1);
+				
 				JsonObjectBuilder conversation = Json.createObjectBuilder();
-				conversation.add("id", resultSet.getInt(1));
+				conversation.add("id", id);
 				conversation.add("title", resultSet.getString(2));
+				conversation.add("participants", getParticipants(id));
+				
 				conversations.add(conversation);
 			}
 			response.add("conversations", conversations.build());
@@ -386,6 +390,24 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	private JsonArray getParticipants(int chatId) {
+		JsonArrayBuilder participants = Json.createArrayBuilder();
+		String sql = "SELECT nickname FROM chat_user WHERE chat_id = ?";
+		try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			preparedStatement.setInt(1, chatId);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			
+			while(resultSet.next()) {
+				participants.add(resultSet.getString(1));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return participants.build();
 	}
 
 	/**
