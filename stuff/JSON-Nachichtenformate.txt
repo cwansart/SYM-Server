@@ -117,8 +117,8 @@ GetMessages:
 AddFriend:
 {
 	"msgtype": 6,
-	"success": false,
-	"info": "not found"	// alternativ: "not accepted", "delayed"
+	"successful": false,
+	"error": "not found"	// alternativ: "not accepted", "delayed"
 }
 
 // Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
