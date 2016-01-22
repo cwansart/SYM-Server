@@ -37,6 +37,22 @@ GetMessages:
 	"chatid": 2
 }
 
+// Diese Nachricht sendet derjenige, der einen neuen Freund hinzufügen will
+AddFriend:
+{
+	"msgtype": 6,
+	"nickname": "searchedfriend"
+}
+
+// Diese Nachricht schickt der Freund, der eine Anfrage bekommen hat.
+// Er kann die freundschaft akzeptieren oder sie ablehnen.
+AcceptFriendship:
+{
+	"msgtype": 7,
+	"nickname": "newbuddy",
+	"accepted": true
+}
+
 /*********************************************************************/
 
 Server -> Client
@@ -93,4 +109,21 @@ GetMessages:
 		{ "id": 3, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 4, "nickname": "author", "date": "date", "content": "Message-content" }
 	]
+}
+
+// Diese Nachricht bekommt derjenige, der der die Suchanfrage gestartet hat.
+// success gibt an, ob die Freundschaft zu Stande kam oder nicht.
+// Die Info gibt im Fall von "false" an, ob der Nutzer nicht gefunden wurde oder die Anfrage abgelehnt hat.
+AddFriend:
+{
+	"msgtype": 6,
+	"success": false,
+	"info": "not found"	// alternativ: "not accepted", "delayed"
+}
+
+// Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
+AcceptFriendship:
+{
+	"msgtype": 7,
+	"nickname": "newbuddy"
 }
