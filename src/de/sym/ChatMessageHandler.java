@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -524,7 +523,9 @@ public class ChatMessageHandler implements Whole<String> {
 					response.add("chatid", chatId);
 				}
 				
-				sendResponse(response.build().toString());
+				String responseText = response.build().toString();
+				sendResponse(responseText);
+				messageHandler.sendResponse(responseText);
 			}
 		}
 	}
