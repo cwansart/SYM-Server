@@ -270,7 +270,7 @@ public class ChatMessageHandler implements Whole<String> {
 	 */
 	private void handleDeleteBuddy(JsonObject jsonObject) {
 		if (!isLoggedIn) {
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"not logged in\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
 
@@ -279,7 +279,7 @@ public class ChatMessageHandler implements Whole<String> {
 			buddyname = jsonObject.getString("buddyname");
 		} catch (NullPointerException e) {
 			System.err.println("Delete buddy failed, missing buddyname");
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"missing buddyname\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"missing buddyname\"}");
 			return;
 		}
 
@@ -291,7 +291,7 @@ public class ChatMessageHandler implements Whole<String> {
 			preparedStatement.setString(4, buddyname);
 			preparedStatement.execute();
 		} catch (SQLException e) {
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"delete buddy failed\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"delete buddy failed\"}");
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
