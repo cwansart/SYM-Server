@@ -483,6 +483,9 @@ public class ChatMessageHandler implements Whole<String> {
 
 		String buddyname;
 		boolean accepted;
+		String quotation1 = "";
+		String quotation2 = "";
+		
 		try {
 			buddyname = jsonObject.getString("nickname");
 			accepted = jsonObject.getBoolean("accepted");
@@ -508,24 +511,63 @@ public class ChatMessageHandler implements Whole<String> {
 				sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"couldn't add friend\"}");
 				e.printStackTrace();
 			}
+			
+			String sql2 = "SELECT quotation FROM user WHERE nickname =?";
+			
+			try(PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
+				preparedStatement.setString(1, buddyname);
+				ResultSet resultSet = preparedStatement.executeQuery();
+				while(resultSet.next()) {
+					quotation1 = resultSet.getString(1);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			try(PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
+				preparedStatement.setString(1, nickname);
+				ResultSet resultSet = preparedStatement.executeQuery();
+				while(resultSet.next()) {
+					quotation2 = resultSet.getString(1);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
-		// Antwort msgtype 6
+		// Antwort msgtype 6 an User 1
+		JsonObjectBuilder response1 = Json.createObjectBuilder();
+		response1.add("msgtype", 6);
+		response1.add("successful", accepted);
+		
+		if(!accepted) {
+			response1.add("error", "not accepted");
+		} else {
+			response1.add("nickname", buddyname);
+			response1.add("chatid", chatId);
+			response1.add("quotation", quotation1);	
+		}
+		String responseText1 = response1.build().toString();
+		sendResponse(responseText1);
+
+		
+		// Antwort msgtype 6 an User 2
 		for(ChatMessageHandler messageHandler: messageHandlerList) {
 			if(messageHandler.getNickname().equals(buddyname)) {
-				JsonObjectBuilder response = Json.createObjectBuilder();
-				response.add("msgtype", 6);
-				response.add("successful", accepted);
+				JsonObjectBuilder response2 = Json.createObjectBuilder();
+				response2.add("msgtype", 6);
+				response2.add("successful", accepted);
 				
 				if(!accepted) {
-					response.add("error", "not accepted");
+					response2.add("error", "not accepted");
 				} else {
-					response.add("chatid", chatId);
+					response2.add("nickname", nickname);
+					response2.add("chatid", chatId);
+					response2.add("quotation", quotation2);	
 				}
 				
-				String responseText = response.build().toString();
-				sendResponse(responseText);
-				messageHandler.sendResponse(responseText);
+				String responseText2 = response2.build().toString();
+				messageHandler.sendResponse(responseText2);
 			}
 		}
 	}
