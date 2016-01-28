@@ -111,16 +111,17 @@ GetMessages:
 	]
 }
 
-// Diese Nachricht bekommt derjenige, der der die Suchanfrage gestartet hat.
+// Diese Nachricht bekommen beide Nutzer.
 // success gibt an, ob die Freundschaft zu Stande kam oder nicht.
 // Die Info gibt im Fall von "false" an, ob der Nutzer nicht gefunden wurde oder die Anfrage abgelehnt hat.
 AddFriend:
 {
 	"msgtype": 6,
 	"nickname": "buddyname",
+	"quotation": "A nice quotation.",
 	"chatid": 2,
 	"successful": false,
-	"error": "not found"	// alternativ: "not accepted", "delayed"
+	"error": "not found"	// alternativ: "not accepted"
 }
 
 // Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
