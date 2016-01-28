@@ -39,7 +39,8 @@ public class ChatMessageHandler implements Whole<String> {
 		GETCONVERSATIONS, // 4
 		GETMESSAGES, // 5
 		ADDFRIEND, // 6
-		FRIENDSHIPREQUEST // 7
+		FRIENDSHIPREQUEST, // 7
+		LOGOUT // 8
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList,
@@ -106,6 +107,10 @@ public class ChatMessageHandler implements Whole<String> {
 
 		case FRIENDSHIPREQUEST:
 			handleFriendshipRequest(jsonObject);
+			break;
+
+		case LOGOUT:
+			handleLogout(jsonObject);
 			break;
 
 		default:
@@ -297,7 +302,6 @@ public class ChatMessageHandler implements Whole<String> {
 		}
 
 		for (ChatMessageHandler messageHandler : this.messageHandlerList) {
-			System.err.println("NICK1: " + messageHandler.getNickname());
 			if (messageHandler.getNickname().equals(buddyname)) {
 				JsonObjectBuilder response = Json.createObjectBuilder();
 				response.add("msgtype", 3);
@@ -436,7 +440,7 @@ public class ChatMessageHandler implements Whole<String> {
 			while (resultSet.next()) {
 				buddyname = resultSet.getString(1);
 			}
-			
+
 			JsonObjectBuilder notFoundResponse = Json.createObjectBuilder();
 			notFoundResponse.add("msgtype", 6);
 			notFoundResponse.add("successful", false);
@@ -454,12 +458,13 @@ public class ChatMessageHandler implements Whole<String> {
 						found = true;
 						JsonObjectBuilder request = Json.createObjectBuilder();
 						request.add("msgtype", 7);
-						request.add("nickname", nickname);
+						request.add("successful", true);
+						request.add("nickname", this.nickname);
 						messageHandler.sendResponse(request.build().toString());
 					}
 				}
-				
-				if(!found) {
+
+				if (!found) {
 					sendResponse(notFoundResponse.build().toString());
 				}
 			}
@@ -485,7 +490,7 @@ public class ChatMessageHandler implements Whole<String> {
 		boolean accepted;
 		String quotation1 = "";
 		String quotation2 = "";
-		
+
 		try {
 			buddyname = jsonObject.getString("nickname");
 			accepted = jsonObject.getBoolean("accepted");
@@ -498,76 +503,102 @@ public class ChatMessageHandler implements Whole<String> {
 		int chatId = -1;
 		if (accepted) {
 			String sql = "SELECT add_chat(?, ?)";
-			try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 				preparedStatement.setString(1, nickname);
 				preparedStatement.setString(2, buddyname);
-				
+
 				ResultSet resultSet = preparedStatement.executeQuery();
-				while(resultSet.next()) {
+				while (resultSet.next()) {
 					chatId = resultSet.getInt(1);
 				}
-				
+
 			} catch (SQLException e) {
 				sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"couldn't add friend\"}");
 				e.printStackTrace();
 			}
-			
+
 			String sql2 = "SELECT quotation FROM user WHERE nickname =?";
-			
-			try(PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
+
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
 				preparedStatement.setString(1, buddyname);
 				ResultSet resultSet = preparedStatement.executeQuery();
-				while(resultSet.next()) {
+				while (resultSet.next()) {
 					quotation1 = resultSet.getString(1);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
-			try(PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
+
+			try (PreparedStatement preparedStatement = connection.prepareStatement(sql2)) {
 				preparedStatement.setString(1, nickname);
 				ResultSet resultSet = preparedStatement.executeQuery();
-				while(resultSet.next()) {
+				while (resultSet.next()) {
 					quotation2 = resultSet.getString(1);
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		// Antwort msgtype 6 an User 1
 		JsonObjectBuilder response1 = Json.createObjectBuilder();
 		response1.add("msgtype", 6);
 		response1.add("successful", accepted);
-		
-		if(!accepted) {
+
+		if (!accepted) {
 			response1.add("error", "not accepted");
 		} else {
 			response1.add("nickname", buddyname);
 			response1.add("chatid", chatId);
-			response1.add("quotation", quotation1);	
+			response1.add("quotation", quotation1);
 		}
 		String responseText1 = response1.build().toString();
 		sendResponse(responseText1);
 
-		
 		// Antwort msgtype 6 an User 2
-		for(ChatMessageHandler messageHandler: messageHandlerList) {
-			if(messageHandler.getNickname().equals(buddyname)) {
+		for (ChatMessageHandler messageHandler : messageHandlerList) {
+			if (messageHandler.getNickname().equals(buddyname)) {
 				JsonObjectBuilder response2 = Json.createObjectBuilder();
 				response2.add("msgtype", 6);
 				response2.add("successful", accepted);
-				
-				if(!accepted) {
+
+				if (!accepted) {
 					response2.add("error", "not accepted");
 				} else {
 					response2.add("nickname", nickname);
 					response2.add("chatid", chatId);
-					response2.add("quotation", quotation2);	
+					response2.add("quotation", quotation2);
 				}
-				
+
 				String responseText2 = response2.build().toString();
 				messageHandler.sendResponse(responseText2);
+			}
+		}
+	}
+
+	/**
+	 * Handles logout messages. Informs online friends about the logout.
+	 * 
+	 * @param jsonObject
+	 */
+	private void handleLogout(JsonObject jsonObject) {
+		if (!isLoggedIn) {
+			sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"not logged in\"}");
+			return;
+		}
+		
+		
+		JsonArray friends = getFriendsList(nickname);
+		for(ChatMessageHandler messageHandler: messageHandlerList) {
+			for(int i = 0; i < friends.size(); i++) {
+				JsonObject friendObject = friends.getJsonObject(i);
+				String nickname = friendObject.getString("nickname");
+				if(messageHandler.getNickname().equals(nickname)) {
+					JsonObjectBuilder builder = Json.createObjectBuilder();
+					builder.add("msgtype", 8);
+					builder.add("nickname", this.nickname);
+					messageHandler.sendResponse(builder.build().toString());
+				}
 			}
 		}
 	}
@@ -668,6 +699,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.ADDFRIEND;
 		case 7:
 			return MessageType.FRIENDSHIPREQUEST;
+		case 8:
+			return MessageType.LOGOUT;
 		default:
 			return MessageType.INVALID;
 		}
