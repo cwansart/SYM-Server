@@ -53,6 +53,11 @@ FriendshipRequest:
 	"accepted": true
 }
 
+Logout:
+{
+	"msgtype": 8
+}
+
 /*********************************************************************/
 
 Server -> Client
@@ -129,4 +134,10 @@ FriendshipRequest:
 {
 	"msgtype": 7,
 	"nickname": "newbuddy"
+}
+
+Logout:
+{
+	"msgtype": 8,
+	"nickname": "buddyname"
 }
