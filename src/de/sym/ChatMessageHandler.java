@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -271,7 +270,7 @@ public class ChatMessageHandler implements Whole<String> {
 	 */
 	private void handleDeleteBuddy(JsonObject jsonObject) {
 		if (!isLoggedIn) {
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"not logged in\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
 
@@ -280,7 +279,7 @@ public class ChatMessageHandler implements Whole<String> {
 			buddyname = jsonObject.getString("buddyname");
 		} catch (NullPointerException e) {
 			System.err.println("Delete buddy failed, missing buddyname");
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"missing buddyname\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"missing buddyname\"}");
 			return;
 		}
 
@@ -292,7 +291,7 @@ public class ChatMessageHandler implements Whole<String> {
 			preparedStatement.setString(4, buddyname);
 			preparedStatement.execute();
 		} catch (SQLException e) {
-			sendResponse("{\"msgtype\": 4, \"successful\": false, \"error\": \"delete buddy failed\"}");
+			sendResponse("{\"msgtype\": 3, \"successful\": false, \"error\": \"delete buddy failed\"}");
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
@@ -524,7 +523,9 @@ public class ChatMessageHandler implements Whole<String> {
 					response.add("chatid", chatId);
 				}
 				
-				sendResponse(response.build().toString());
+				String responseText = response.build().toString();
+				sendResponse(responseText);
+				messageHandler.sendResponse(responseText);
 			}
 		}
 	}
