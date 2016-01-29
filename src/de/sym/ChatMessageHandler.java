@@ -40,7 +40,7 @@ public class ChatMessageHandler implements Whole<String> {
 		GETMESSAGES, // 5
 		ADDFRIEND, // 6
 		FRIENDSHIPREQUEST, // 7
-		LOGOUT // 8
+		STATUS // 8
 	}
 
 	public ChatMessageHandler(Session session, List<Session> sessionList, List<ChatMessageHandler> messageHandlerList,
@@ -109,8 +109,8 @@ public class ChatMessageHandler implements Whole<String> {
 			handleFriendshipRequest(jsonObject);
 			break;
 
-		case LOGOUT:
-			handleLogout(jsonObject);
+		case STATUS:
+			handleStatus(jsonObject);
 			break;
 
 		default:
@@ -581,12 +581,13 @@ public class ChatMessageHandler implements Whole<String> {
 	 * 
 	 * @param jsonObject
 	 */
-	private void handleLogout(JsonObject jsonObject) {
+	private void handleStatus(JsonObject jsonObject) {
 		if (!isLoggedIn) {
-			sendResponse("{\"msgtype\": 7, \"successful\": false, \"error\": \"not logged in\"}");
+			sendResponse("{\"msgtype\": 8, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
 		
+		boolean online = jsonObject.getBoolean("online");
 		
 		JsonArray friends = getFriendsList(nickname);
 		for(ChatMessageHandler messageHandler: messageHandlerList) {
@@ -596,6 +597,7 @@ public class ChatMessageHandler implements Whole<String> {
 				if(messageHandler.getNickname().equals(nickname)) {
 					JsonObjectBuilder builder = Json.createObjectBuilder();
 					builder.add("msgtype", 8);
+					builder.add("online", online);
 					builder.add("nickname", this.nickname);
 					messageHandler.sendResponse(builder.build().toString());
 				}
@@ -700,7 +702,7 @@ public class ChatMessageHandler implements Whole<String> {
 		case 7:
 			return MessageType.FRIENDSHIPREQUEST;
 		case 8:
-			return MessageType.LOGOUT;
+			return MessageType.STATUS;
 		default:
 			return MessageType.INVALID;
 		}
