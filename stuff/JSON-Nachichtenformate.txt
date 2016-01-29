@@ -37,7 +37,7 @@ GetMessages:
 	"chatid": 2
 }
 
-// Diese Nachricht sendet derjenige, der einen neuen Freund hinzufügen will
+// Diese Nachricht sendet derjenige, der einen neuen Freund hinzufï¿½gen will
 AddFriend:
 {
 	"msgtype": 6,
@@ -57,6 +57,13 @@ Status:
 {
 	"msgtype": 8,
 	"online": true
+}
+
+Image:
+{
+	"msgtype": 9,
+	"chatid": 6,
+	"blob": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAyADIDASIAAhEBAxEB/8QAGgABAQACAwAAAAAAAAAAAAAAAAcCBgMFCP/EACcQAAEEAgICAQQDAQAAAAAAAAEAAgMEBQYHERIhMRMUFUEjUWGB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/APVKIiAiIgIiICIiDpN1ysuC07O5isxkk+PoT242P78XOjjc8A9frsKdYretwojS7+y18DZxGzywV2DHMminrSTRl7C4Pc4Ob0CCR118rduVwXcXbi1o7Jw1wAD9n6D1CNCOKkzXG1jT8vks/mYY4YclTtyvtV6Fd0P8z2ueOoHNIa1oa4d/HXXyFu422i7s7NmN+KvH+MztvGQ/Ra4eUURAaXdk9u9+yOh/gTiHZ7u5ce4vPZSKtFbtOnD2V2uDB4TPjHQcSfhgPz8qb8Z8h6nql3fKGxZytRtv2vIzNikDiSwvAB9A+u2lZ8abth+OtJdquzvnq7BiZ7TGUTDIZLgdM+SN0PTT5BweACP++kHNhOTts2DCcc/jYcFBltp+/wDrPsQyugiFfyI8WiQO9hv7J9reeO9qyuYyux4PY6tKLL4OeKKWWiXGCZksfmxzQ7209fLST1/aiFvDw6rhuFKG437eDhgjyTrdmGd1eWu6SPza3zb7ae3NaQP9CpfAcYgftcWKfZuax98yXHZO2zqe45zP5vJ5AMjWuAAeR2R67ICCuoiICIiAiIgIiICIiAiIgIiICIiAiIg//9k="
 }
 
 /*********************************************************************/
@@ -130,7 +137,7 @@ AddFriend:
 	"error": "not found"	// alternativ: "not accepted"
 }
 
-// Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
+// Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhï¿½lt.
 FriendshipRequest:
 {
 	"msgtype": 7,
@@ -142,4 +149,12 @@ Status:
 	"msgtype": 8,
 	"online": true,
 	"nickname": "buddyname"
+}
+
+Image:
+{
+	"msgtype": 9,
+	"chatid": 6,
+	"datetime": "2016-01-29 14:47:00",
+	"blob": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAyADIDASIAAhEBAxEB/8QAGgABAQACAwAAAAAAAAAAAAAAAAcCBgMFCP/EACcQAAEEAgICAQQDAQAAAAAAAAEAAgMEBQYHERIhMRMUFUEjUWGB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/APVKIiAiIgIiICIiDpN1ysuC07O5isxkk+PoT242P78XOjjc8A9frsKdYretwojS7+y18DZxGzywV2DHMminrSTRl7C4Pc4Ob0CCR118rduVwXcXbi1o7Jw1wAD9n6D1CNCOKkzXG1jT8vks/mYY4YclTtyvtV6Fd0P8z2ueOoHNIa1oa4d/HXXyFu422i7s7NmN+KvH+MztvGQ/Ra4eUURAaXdk9u9+yOh/gTiHZ7u5ce4vPZSKtFbtOnD2V2uDB4TPjHQcSfhgPz8qb8Z8h6nql3fKGxZytRtv2vIzNikDiSwvAB9A+u2lZ8abth+OtJdquzvnq7BiZ7TGUTDIZLgdM+SN0PTT5BweACP++kHNhOTts2DCcc/jYcFBltp+/wDrPsQyugiFfyI8WiQO9hv7J9reeO9qyuYyux4PY6tKLL4OeKKWWiXGCZksfmxzQ7209fLST1/aiFvDw6rhuFKG437eDhgjyTrdmGd1eWu6SPza3zb7ae3NaQP9CpfAcYgftcWKfZuax98yXHZO2zqe45zP5vJ5AMjWuAAeR2R67ICCuoiICIiAiIgIiICIiAiIgIiICIiAiIg//9k="
 }

@@ -196,19 +196,23 @@ public class ChatMessageHandler implements Whole<String> {
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
-		
+
 		// Inform friends that the user just came online.
 		JsonArray friends = getFriendsList(nickname);
-		for(ChatMessageHandler messageHandler: messageHandlerList) {
-			for(int i = 0; i < friends.size(); i++) {
+		for (ChatMessageHandler messageHandler : messageHandlerList) {
+			for (int i = 0; i < friends.size(); i++) {
+				if (messageHandler.getNickname() == null)
+					continue;
+				
 				JsonObject friendObject = friends.getJsonObject(i);
 				String nickname = friendObject.getString("nickname");
-				if(messageHandler.getNickname().equals(nickname)) {
+				if (messageHandler.getNickname().equals(nickname)) {
 					JsonObjectBuilder builder = Json.createObjectBuilder();
 					builder.add("msgtype", 8);
 					builder.add("online", true);
 					builder.add("nickname", this.nickname);
 					messageHandler.sendResponse(builder.build().toString());
+
 				}
 			}
 		}
@@ -414,7 +418,7 @@ public class ChatMessageHandler implements Whole<String> {
 				message.add("content", resultSet.getString(4));
 				messages.add(message);
 			}
-			System.out.println("messages: " + messages.toString());
+
 			response.add("messages", messages.build());
 			sendResponse(response.build().toString());
 
@@ -602,7 +606,7 @@ public class ChatMessageHandler implements Whole<String> {
 			sendResponse("{\"msgtype\": 8, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
-		
+
 		boolean online;
 		try {
 			online = jsonObject.getBoolean("online");
@@ -611,13 +615,13 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		JsonArray friends = getFriendsList(nickname);
-		for(ChatMessageHandler messageHandler: messageHandlerList) {
-			for(int i = 0; i < friends.size(); i++) {
+		for (ChatMessageHandler messageHandler : messageHandlerList) {
+			for (int i = 0; i < friends.size(); i++) {
 				JsonObject friendObject = friends.getJsonObject(i);
 				String nickname = friendObject.getString("nickname");
-				if(messageHandler.getNickname().equals(nickname)) {
+				if (messageHandler.getNickname().equals(nickname)) {
 					JsonObjectBuilder builder = Json.createObjectBuilder();
 					builder.add("msgtype", 8);
 					builder.add("online", online);
