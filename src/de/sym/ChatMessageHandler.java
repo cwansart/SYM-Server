@@ -196,6 +196,22 @@ public class ChatMessageHandler implements Whole<String> {
 			System.err.println("SQL Error: ");
 			e.printStackTrace();
 		}
+		
+		// Inform friends that the user just came online.
+		JsonArray friends = getFriendsList(nickname);
+		for(ChatMessageHandler messageHandler: messageHandlerList) {
+			for(int i = 0; i < friends.size(); i++) {
+				JsonObject friendObject = friends.getJsonObject(i);
+				String nickname = friendObject.getString("nickname");
+				if(messageHandler.getNickname().equals(nickname)) {
+					JsonObjectBuilder builder = Json.createObjectBuilder();
+					builder.add("msgtype", 8);
+					builder.add("online", true);
+					builder.add("nickname", this.nickname);
+					messageHandler.sendResponse(builder.build().toString());
+				}
+			}
+		}
 	}
 
 	/**
@@ -577,7 +593,7 @@ public class ChatMessageHandler implements Whole<String> {
 	}
 
 	/**
-	 * Handles logout messages. Informs online friends about the logout.
+	 * Handles status messages. Informs online friends about the logout.
 	 * 
 	 * @param jsonObject
 	 */
@@ -587,7 +603,14 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 		
-		boolean online = jsonObject.getBoolean("online");
+		boolean online;
+		try {
+			online = jsonObject.getBoolean("online");
+		} catch (NullPointerException e) {
+			sendResponse("{\"msgtype\": 8, \"successful\": false, \"error\": \"missing online\"}");
+			e.printStackTrace();
+			return;
+		}
 		
 		JsonArray friends = getFriendsList(nickname);
 		for(ChatMessageHandler messageHandler: messageHandlerList) {
