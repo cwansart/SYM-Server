@@ -648,10 +648,19 @@ public class ChatMessageHandler implements Whole<String> {
 			ResultSet resultSet = statement.executeQuery();
 
 			while (resultSet.next()) {
+				boolean online = false;
+				
+				for(ChatMessageHandler messageHandler: messageHandlerList) {
+					if(messageHandler.getNickname().equals(resultSet.getString(1))) {
+						online = true;
+					}
+				}
+				
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
 				currentLine.add("quotation", resultSet.getString(2));
 				currentLine.add("id", resultSet.getInt(3));
+				currentLine.add("online", online);
 				friendslist.add(currentLine);
 			}
 
