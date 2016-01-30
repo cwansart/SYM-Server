@@ -2,7 +2,6 @@ package de.sym;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -373,6 +372,7 @@ public class ChatMessageHandler implements Whole<String> {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setInt(1, id);
 			ResultSet resultSet = preparedStatement.executeQuery();
+			
 
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 5);

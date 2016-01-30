@@ -24,7 +24,7 @@ public class ChatServer {
 		try {
 			if (connection == null) {
 				Class.forName("com.mysql.jdbc.Driver");
-				this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sym", "sym", "sym");
+				this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sym?useUnicode=true&characterEncoding=UTF-8", "sym", "sym");
 			}
 		} catch (SQLException e) {
 			System.err.println("Couldn't connect to MySQL database. Perhaps you forgot to start? ;-)");
