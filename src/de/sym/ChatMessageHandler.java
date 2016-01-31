@@ -204,20 +204,22 @@ public class ChatMessageHandler implements Whole<String> {
 
 		// Inform friends that the user just came online.
 		JsonArray friends = getFriendsList(nickname);
-		for (ChatMessageHandler messageHandler : messageHandlerList) {
-			for (int i = 0; i < friends.size(); i++) {
-				if (messageHandler.getNickname() == null)
-					continue;
+		synchronized (messageHandlerList) {
+			for (ChatMessageHandler messageHandler : messageHandlerList) {
+				for (int i = 0; i < friends.size(); i++) {
+					if (messageHandler.getNickname() == null)
+						continue;
 
-				JsonObject friendObject = friends.getJsonObject(i);
-				String nickname = friendObject.getString("nickname");
-				if (messageHandler.getNickname().equals(nickname)) {
-					JsonObjectBuilder builder = Json.createObjectBuilder();
-					builder.add("msgtype", 8);
-					builder.add("online", true);
-					builder.add("nickname", this.nickname);
-					messageHandler.sendResponse(builder.build().toString());
+					JsonObject friendObject = friends.getJsonObject(i);
+					String nickname = friendObject.getString("nickname");
+					if (messageHandler.getNickname().equals(nickname)) {
+						JsonObjectBuilder builder = Json.createObjectBuilder();
+						builder.add("msgtype", 8);
+						builder.add("online", true);
+						builder.add("nickname", this.nickname);
+						messageHandler.sendResponse(builder.build().toString());
 
+					}
 				}
 			}
 		}
@@ -295,13 +297,15 @@ public class ChatMessageHandler implements Whole<String> {
 			e.printStackTrace();
 		}
 
-		for (ChatMessageHandler messageHandler : this.messageHandlerList) {
-			if (messageHandler.getNickname().equals(buddyname)) {
-				JsonObjectBuilder response = Json.createObjectBuilder();
-				response.add("msgtype", 3);
-				response.add("successful", true);
-				response.add("nickname", nickname);
-				messageHandler.sendResponse(response.build().toString());
+		synchronized (this.messageHandlerList) {
+			for (ChatMessageHandler messageHandler : this.messageHandlerList) {
+				if (messageHandler.getNickname().equals(buddyname)) {
+					JsonObjectBuilder response = Json.createObjectBuilder();
+					response.add("msgtype", 3);
+					response.add("successful", true);
+					response.add("nickname", nickname);
+					messageHandler.sendResponse(response.build().toString());
+				}
 			}
 		}
 	}
@@ -372,7 +376,6 @@ public class ChatMessageHandler implements Whole<String> {
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setInt(1, id);
 			ResultSet resultSet = preparedStatement.executeQuery();
-			
 
 			JsonObjectBuilder response = Json.createObjectBuilder();
 			response.add("msgtype", 5);
@@ -451,14 +454,16 @@ public class ChatMessageHandler implements Whole<String> {
 			// found friend
 			else {
 				boolean found = false;
-				for (ChatMessageHandler messageHandler : messageHandlerList) {
-					if (messageHandler.getNickname().equals(buddyname)) {
-						found = true;
-						JsonObjectBuilder request = Json.createObjectBuilder();
-						request.add("msgtype", 7);
-						request.add("successful", true);
-						request.add("nickname", this.nickname);
-						messageHandler.sendResponse(request.build().toString());
+				synchronized (messageHandlerList) {
+					for (ChatMessageHandler messageHandler : messageHandlerList) {
+						if (messageHandler.getNickname().equals(buddyname)) {
+							found = true;
+							JsonObjectBuilder request = Json.createObjectBuilder();
+							request.add("msgtype", 7);
+							request.add("successful", true);
+							request.add("nickname", this.nickname);
+							messageHandler.sendResponse(request.build().toString());
+						}
 					}
 				}
 
@@ -554,22 +559,24 @@ public class ChatMessageHandler implements Whole<String> {
 		sendResponse(responseText1);
 
 		// Antwort msgtype 6 an User 2
-		for (ChatMessageHandler messageHandler : messageHandlerList) {
-			if (messageHandler.getNickname().equals(buddyname)) {
-				JsonObjectBuilder response2 = Json.createObjectBuilder();
-				response2.add("msgtype", 6);
-				response2.add("successful", accepted);
+		synchronized (messageHandlerList) {
+			for (ChatMessageHandler messageHandler : messageHandlerList) {
+				if (messageHandler.getNickname().equals(buddyname)) {
+					JsonObjectBuilder response2 = Json.createObjectBuilder();
+					response2.add("msgtype", 6);
+					response2.add("successful", accepted);
 
-				if (!accepted) {
-					response2.add("error", "not accepted");
-				} else {
-					response2.add("nickname", nickname);
-					response2.add("chatid", chatId);
-					response2.add("quotation", quotation2);
+					if (!accepted) {
+						response2.add("error", "not accepted");
+					} else {
+						response2.add("nickname", nickname);
+						response2.add("chatid", chatId);
+						response2.add("quotation", quotation2);
+					}
+
+					String responseText2 = response2.build().toString();
+					messageHandler.sendResponse(responseText2);
 				}
-
-				String responseText2 = response2.build().toString();
-				messageHandler.sendResponse(responseText2);
 			}
 		}
 	}
@@ -595,16 +602,18 @@ public class ChatMessageHandler implements Whole<String> {
 		}
 
 		JsonArray friends = getFriendsList(nickname);
-		for (ChatMessageHandler messageHandler : messageHandlerList) {
-			for (int i = 0; i < friends.size(); i++) {
-				JsonObject friendObject = friends.getJsonObject(i);
-				String nickname = friendObject.getString("nickname");
-				if (messageHandler.getNickname().equals(nickname)) {
-					JsonObjectBuilder builder = Json.createObjectBuilder();
-					builder.add("msgtype", 8);
-					builder.add("online", online);
-					builder.add("nickname", this.nickname);
-					messageHandler.sendResponse(builder.build().toString());
+		synchronized (messageHandlerList) {
+			for (ChatMessageHandler messageHandler : messageHandlerList) {
+				for (int i = 0; i < friends.size(); i++) {
+					JsonObject friendObject = friends.getJsonObject(i);
+					String nickname = friendObject.getString("nickname");
+					if (messageHandler.getNickname().equals(nickname)) {
+						JsonObjectBuilder builder = Json.createObjectBuilder();
+						builder.add("msgtype", 8);
+						builder.add("online", online);
+						builder.add("nickname", this.nickname);
+						messageHandler.sendResponse(builder.build().toString());
+					}
 				}
 			}
 		}
@@ -683,19 +692,21 @@ public class ChatMessageHandler implements Whole<String> {
 
 			while (resultSet.next()) {
 				String nickname2 = resultSet.getString(1);
-				for (ChatMessageHandler messageHandler : messageHandlerList) {
-					if (messageHandler.getNickname().equals(nickname2)) {
-						JsonObjectBuilder response = Json.createObjectBuilder();
-						response.add("msgtype", 2);
-						response.add("successful", true);
-						response.add("id", chatId);
-						response.add("author", nickname);
+				synchronized (messageHandlerList) {
+					for (ChatMessageHandler messageHandler : messageHandlerList) {
+						if (messageHandler.getNickname().equals(nickname2)) {
+							JsonObjectBuilder response = Json.createObjectBuilder();
+							response.add("msgtype", 2);
+							response.add("successful", true);
+							response.add("id", chatId);
+							response.add("author", nickname);
 
-						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						response.add("date", dateFormat.format(new Date()));
+							SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							response.add("date", dateFormat.format(new Date()));
 
-						response.add("message", message);
-						messageHandler.sendResponse(response.build().toString());
+							response.add("message", message);
+							messageHandler.sendResponse(response.build().toString());
+						}
 					}
 				}
 			}
@@ -726,13 +737,15 @@ public class ChatMessageHandler implements Whole<String> {
 
 			while (resultSet.next()) {
 				boolean online = false;
-				
-				for(ChatMessageHandler messageHandler: messageHandlerList) {
-					if(messageHandler.getNickname().equals(resultSet.getString(1))) {
-						online = true;
+
+				synchronized (messageHandlerList) {
+					for (ChatMessageHandler messageHandler : messageHandlerList) {
+						if (messageHandler.getNickname().equals(resultSet.getString(1))) {
+							online = true;
+						}
 					}
 				}
-				
+
 				JsonObjectBuilder currentLine = Json.createObjectBuilder();
 				currentLine.add("nickname", resultSet.getString(1));
 				currentLine.add("quotation", resultSet.getString(2));

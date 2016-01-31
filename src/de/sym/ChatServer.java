@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.websocket.MessageHandler;
@@ -15,9 +16,8 @@ import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint("/chat")
 public class ChatServer {
-	List<User> userList = new ArrayList<>();
-	List<Session> sessionList = new ArrayList<>();
-	static List<ChatMessageHandler> messageHandlerList = new ArrayList<>();
+	List<Session> sessionList = Collections.synchronizedList(new ArrayList<Session>());
+	static List<ChatMessageHandler> messageHandlerList = Collections.synchronizedList(new ArrayList<ChatMessageHandler>());
 	Connection connection = null;
 
 	public ChatServer() {
