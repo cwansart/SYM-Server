@@ -121,7 +121,7 @@ CREATE TABLE message (
   chat_id mediumint(9) NOT NULL,
   date TIMESTAMP DEFAULT NOW(),
   content TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
-  image TEXT, -- We don't use blob here, since our image is base64 encoded
+  image LONGTEXT, -- We don't use blob here, since our image is base64 encoded
   type CHAR(1) NOT NULL DEFAULT 't', 
   PRIMARY KEY (id, chat_id),
   FOREIGN KEY (nickname) REFERENCES user (nickname),

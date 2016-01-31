@@ -17,14 +17,16 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/chat")
 public class ChatServer {
 	List<Session> sessionList = Collections.synchronizedList(new ArrayList<Session>());
-	static List<ChatMessageHandler> messageHandlerList = Collections.synchronizedList(new ArrayList<ChatMessageHandler>());
+	static List<ChatMessageHandler> messageHandlerList = Collections
+			.synchronizedList(new ArrayList<ChatMessageHandler>());
 	Connection connection = null;
 
 	public ChatServer() {
 		try {
 			if (connection == null) {
 				Class.forName("com.mysql.jdbc.Driver");
-				this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/sym?useUnicode=true&characterEncoding=UTF-8", "sym", "sym");
+				this.connection = DriverManager.getConnection(
+						"jdbc:mysql://localhost:3306/sym?useUnicode=true&characterEncoding=UTF-8", "sym", "sym");
 			}
 		} catch (SQLException e) {
 			System.err.println("Couldn't connect to MySQL database. Perhaps you forgot to start? ;-)");
@@ -36,11 +38,14 @@ public class ChatServer {
 		}
 	}
 
-
 	@OnOpen
 	public void onOpen(Session session) {
+		// Setting the max text message size to 20 mb.
+		session.setMaxTextMessageBufferSize(20480000);
+		
 		System.err.println("Opened Session:" + session.toString());
-		ChatMessageHandler messageHandler = new ChatMessageHandler(session, sessionList, messageHandlerList, connection);
+		ChatMessageHandler messageHandler = new ChatMessageHandler(session, sessionList, messageHandlerList,
+				connection);
 		session.addMessageHandler(messageHandler);
 		ChatServer.messageHandlerList.add(messageHandler);
 		this.sessionList.add(session);
@@ -49,7 +54,7 @@ public class ChatServer {
 	@OnClose
 	public void onClose(Session session) {
 		System.err.println("Closed Session:" + session.toString());
-		for(MessageHandler messageHandler: session.getMessageHandlers()) {
+		for (MessageHandler messageHandler : session.getMessageHandlers()) {
 			messageHandlerList.remove(messageHandler);
 		}
 		this.sessionList.remove(session);

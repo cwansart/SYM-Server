@@ -625,11 +625,13 @@ public class ChatMessageHandler implements Whole<String> {
 	 * @param jsonObject
 	 */
 	private void handleImage(JsonObject jsonObject) {
+		System.err.println("handleImage1");
 		if (!isLoggedIn) {
 			sendResponse("{\"msgtype\": 9, \"successful\": false, \"error\": \"not logged in\"}");
 			return;
 		}
 
+		System.err.println("handleImage2");
 		int chatId;
 		String blob;
 		try {
@@ -649,13 +651,20 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 
+		// Check if blob starts with data
+		if (!blob.startsWith("data:image/")) {
+			System.err.println("Not a valid blob");
+			sendResponse("{\"msgtype\": 9, \"successful\": false, \"error\": \"invalid blob\"}");
+			return;
+		}
+
 		StringBuilder imgTag = new StringBuilder();
 		imgTag.append("<img src=\"");
 		imgTag.append(blob);
 		imgTag.append("\">");
 
 		// Insert message into database
-		String sql = "INSERT INTO message (nickname, chat_id, image, type) VALUES (?, ?, ?)";
+		String sql = "INSERT INTO message (nickname, chat_id, image, type) VALUES (?, ?, ?, ?)";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setString(1, nickname);
 			preparedStatement.setInt(2, chatId);
@@ -669,7 +678,7 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 
-		spreadMessage(chatId, blob);
+		spreadMessage(chatId, imgTag.toString());
 	}
 
 	// ==============================================================================================================
@@ -825,6 +834,8 @@ public class ChatMessageHandler implements Whole<String> {
 			return MessageType.FRIENDSHIPREQUEST;
 		case 8:
 			return MessageType.STATUS;
+		case 9:
+			return MessageType.IMAGE;
 		default:
 			return MessageType.INVALID;
 		}
