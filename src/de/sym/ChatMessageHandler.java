@@ -372,9 +372,16 @@ public class ChatMessageHandler implements Whole<String> {
 			return;
 		}
 
-		String sql = "SELECT id, nickname, date, content, image, type FROM `message` WHERE chat_id =?";
+		String sql = "SELECT id, nickname, date, content, image, type FROM `message` WHERE chat_id = ? LIMIT ?, ?";
 		try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 			preparedStatement.setInt(1, id);
+			
+			// Later we can give a number (1) to set a proper offset.
+			final int LIMIT = 20;
+			int offset = 1 * LIMIT;
+			preparedStatement.setInt(2, offset);
+			preparedStatement.setInt(3, LIMIT);
+			
 			ResultSet resultSet = preparedStatement.executeQuery();
 
 			JsonObjectBuilder response = Json.createObjectBuilder();
