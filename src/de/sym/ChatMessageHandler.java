@@ -1,3 +1,10 @@
+/**
+ * ChatMessageHandler.java
+ * 
+ * @author Christian Wansart
+ * @author Larissa Schenk
+ */
+
 package de.sym;
 
 import java.io.IOException;

@@ -1,4 +1,11 @@
 --
+-- server.sql
+--
+-- @author Larissa Schenk
+-- @author Christian Wansart
+--
+
+--
 -- Datenbank: sym
 --
 USE sym;

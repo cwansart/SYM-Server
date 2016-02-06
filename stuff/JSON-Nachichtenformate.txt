@@ -1,9 +1,10 @@
-Client -> Server
+Schnittstellendefinition.
 
-Invalid:
-{
-	"msgtype": 0
-}
+Hier werden die verschiedenen Pakete die vom Server an den Client und andersherum gesendet werden
+als kurze Beispiele aufgezeigt. Die Beispiele sind selbsterklärend und daher nicht näher
+erklärt.
+
+Client -> Server
 
 Login:
 {
@@ -15,14 +16,13 @@ Login:
 Message:
 {
 	"msgtype": 2,
-	"chatid": 42,
+	"id": 42,
 	"message": "Irgendein toller Text der gespeichert werden soll"
 }
 
 DeleteBuddy:
 {
 	"msgtype": 3,
-	"nickname": "nickname",
 	"buddyname": "buddyname"
 }
 
@@ -34,7 +34,7 @@ GetConversations:
 GetMessages:
 {
 	"msgtype": 5,
-	"chatid": 2
+	"id": 2
 }
 
 // Diese Nachricht sendet derjenige, der einen neuen Freund hinzuf�gen will
@@ -62,12 +62,13 @@ Status:
 Image:
 {
 	"msgtype": 9,
-	"successful": true,
-	"chatid": 6,
+	"id": 6,
 	"blob": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAyADIDASIAAhEBAxEB/8QAGgABAQACAwAAAAAAAAAAAAAAAAcCBgMFCP/EACcQAAEEAgICAQQDAQAAAAAAAAEAAgMEBQYHERIhMRMUFUEjUWGB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/APVKIiAiIgIiICIiDpN1ysuC07O5isxkk+PoT242P78XOjjc8A9frsKdYretwojS7+y18DZxGzywV2DHMminrSTRl7C4Pc4Ob0CCR118rduVwXcXbi1o7Jw1wAD9n6D1CNCOKkzXG1jT8vks/mYY4YclTtyvtV6Fd0P8z2ueOoHNIa1oa4d/HXXyFu422i7s7NmN+KvH+MztvGQ/Ra4eUURAaXdk9u9+yOh/gTiHZ7u5ce4vPZSKtFbtOnD2V2uDB4TPjHQcSfhgPz8qb8Z8h6nql3fKGxZytRtv2vIzNikDiSwvAB9A+u2lZ8abth+OtJdquzvnq7BiZ7TGUTDIZLgdM+SN0PTT5BweACP++kHNhOTts2DCcc/jYcFBltp+/wDrPsQyugiFfyI8WiQO9hv7J9reeO9qyuYyux4PY6tKLL4OeKKWWiXGCZksfmxzQ7209fLST1/aiFvDw6rhuFKG437eDhgjyTrdmGd1eWu6SPza3zb7ae3NaQP9CpfAcYgftcWKfZuax98yXHZO2zqe45zP5vJ5AMjWuAAeR2R67ICCuoiICIiAiIgIiICIiAiIgIiICIiAiIg//9k="
 }
 
 /*********************************************************************/
+
+
 
 Server -> Client
 
@@ -84,39 +85,43 @@ Login:
 	"lastname": "lastname",
 	"quotation": "quotation",
 	"friendslist" : [
-		{ "nickname": "buddy1", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 1, "online": true },
-		{ "nickname": "buddy2", "quotation": "quotation", "avatar": "data:image/png;base64,data", "chatid": 2, "online": false },
+		{ "nickname": "buddy1", "quotation": "quotation", "chatid": 1, "online": true },
+		{ "nickname": "buddy2", "quotation": "quotation", "chatid": 2, "online": false },
 	],
 }
 
 Message:
 {
 	"msgtype": 2,
+	"successful": true,
 	"id": 42,
 	"author": "Chris",
 	"date": "2016-01-18 10:24:32",
-	"message": "Eine neue Nachricht von einem anderen Nutzer"
+	"message": "Eine neue Nachricht"
 }
 
 DeleteBuddy:
 {
 	"msgtype": 3,
+	"successful": true,
 	"nickname": "exbuddy"
 }
 
 GetConversations:
 {
 	"msgtype": 4,
+	"successful": true,
 	"conversations": [
-		{ "id": 1, "title": "Conversation Title 1", "lastlog": "Letzte Nachricht im Chatlog" },
-		{ "id": 2, "title": "Conversation Title 2", "lastlog": "Letzte Nachricht im Chatlog" }
+		{ "id": 1, "title": "Conversation Title 1", "participants": [ "foo", "bar", "baz" ] },
+		{ "id": 2, "title": "Conversation Title 2", "participants": [ "foo", "baz" ] }
 	]
 }
 
 GetMessages:
 {
 	"msgtype": 5,
-	"chatid": 1,
+	"successful": true,
+	"id": 1,
 	"messages":[
 		{ "id": 1, "nickname": "author", "date": "date", "content": "Message-content" },
 		{ "id": 2, "nickname": "author", "date": "date", "content": "Message-content" },
@@ -131,17 +136,17 @@ GetMessages:
 AddFriend:
 {
 	"msgtype": 6,
+	"successful", true,
 	"nickname": "buddyname",
-	"quotation": "A nice quotation.",
 	"chatid": 2,
-	"successful": false,
-	"error": "not found"	// alternativ: "not accepted"
+	"quotation": "A nice quotation."
 }
 
 // Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erh�lt.
 FriendshipRequest:
 {
 	"msgtype": 7,
+	"successful": true,
 	"nickname": "newbuddy"
 }
 
@@ -150,13 +155,4 @@ Status:
 	"msgtype": 8,
 	"online": true,
 	"nickname": "buddyname"
-}
-
-Image:
-{
-	"msgtype": 9,
-	"successful": true,
-	"chatid": 6,
-	"datetime": "2016-01-29 14:47:00",
-	"blob": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAyADIDASIAAhEBAxEB/8QAGgABAQACAwAAAAAAAAAAAAAAAAcCBgMFCP/EACcQAAEEAgICAQQDAQAAAAAAAAEAAgMEBQYHERIhMRMUFUEjUWGB/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/APVKIiAiIgIiICIiDpN1ysuC07O5isxkk+PoT242P78XOjjc8A9frsKdYretwojS7+y18DZxGzywV2DHMminrSTRl7C4Pc4Ob0CCR118rduVwXcXbi1o7Jw1wAD9n6D1CNCOKkzXG1jT8vks/mYY4YclTtyvtV6Fd0P8z2ueOoHNIa1oa4d/HXXyFu422i7s7NmN+KvH+MztvGQ/Ra4eUURAaXdk9u9+yOh/gTiHZ7u5ce4vPZSKtFbtOnD2V2uDB4TPjHQcSfhgPz8qb8Z8h6nql3fKGxZytRtv2vIzNikDiSwvAB9A+u2lZ8abth+OtJdquzvnq7BiZ7TGUTDIZLgdM+SN0PTT5BweACP++kHNhOTts2DCcc/jYcFBltp+/wDrPsQyugiFfyI8WiQO9hv7J9reeO9qyuYyux4PY6tKLL4OeKKWWiXGCZksfmxzQ7209fLST1/aiFvDw6rhuFKG437eDhgjyTrdmGd1eWu6SPza3zb7ae3NaQP9CpfAcYgftcWKfZuax98yXHZO2zqe45zP5vJ5AMjWuAAeR2R67ICCuoiICIiAiIgIiICIiAiIgIiICIiAiIg//9k="
 }
