@@ -6,6 +6,9 @@ erklärt.
 
 Client -> Server
 
+
+// Zum Anmelden schickt der Client dem Server eine Login-Nachricht. Diese enthält den Nicknamen,
+// und das unverschlüsselte Passwort.
 Login:
 {
 	"msgtype": 1,
@@ -13,6 +16,8 @@ Login:
 	"password": "password"
 }
 
+// Verschickt eine Nachricht an einen anderen Nutzer oder einen Gruppenchat. Enthalten sind die ID des
+// Chats sowie die Nachricht.
 Message:
 {
 	"msgtype": 2,
@@ -20,24 +25,30 @@ Message:
 	"message": "Irgendein toller Text der gespeichert werden soll"
 }
 
+// Löscht einen Freund aus der Freundesliste. Datz wird "buddyname" mit dem Nicknamen des Freundes übergeben.
 DeleteBuddy:
 {
 	"msgtype": 3,
 	"buddyname": "buddyname"
 }
 
+// Holt die Liste an Konversationen (Gruppennachrichten) damit diese angezeigt werden können. (Freundesliste
+// muss anders als die Konversationen nicht manuell angefordert werden, da diese als Antwort der Login
+// Nachricht mitgeliefert wird.)
 GetConversations:
 {
 	"msgtype": 4,
 }
 
+// Anfrage um die Nachrichten eines bestimmten Chats zu bekommen. Dazu wird in "id" die entsprechende
+// ID des gewünschten Chats übergeben.
 GetMessages:
 {
 	"msgtype": 5,
 	"id": 2
 }
 
-// Diese Nachricht sendet derjenige, der einen neuen Freund hinzuf�gen will
+// Diese Nachricht sendet derjenige, der einen neuen Freund hinzufügen möchte.
 AddFriend:
 {
 	"msgtype": 6,
@@ -45,7 +56,7 @@ AddFriend:
 }
 
 // Diese Nachricht schickt der Freund, der eine Anfrage bekommen hat.
-// Er kann die freundschaft akzeptieren oder sie ablehnen.
+// Er kann die Freundschaft akzeptieren oder sie ablehnen.
 FriendshipRequest:
 {
 	"msgtype": 7,
@@ -53,12 +64,18 @@ FriendshipRequest:
 	"accepted": true
 }
 
+// Gibt den Status an. Dieser wird versendet, wenn man sich an oder abmeldet, damit andere Clients
+// reagieren können, und einen Online/Offline Status anzeigen können.
 Status:
 {
 	"msgtype": 8,
 	"online": true
 }
 
+// Verschickt ein Bild in einen bestimmten Chat. Damit diese entsprechend in der Datenbank gespeichert werden
+// müssen Bilder über einen gesonderten Nachrichtentyp verschickt werden.
+// Es sind die ID des Chats sowie in "blob" die Binärdaten enthalten. Das Format ist fest vorgegeben in Form
+// eines base64-kodierten String mit Angabe des mime-Type.
 Image:
 {
 	"msgtype": 9,
@@ -72,11 +89,17 @@ Image:
 
 Server -> Client
 
+// Wenn der Server eine Nachricht mit einem unbekannten msgtype empfängt,
+// sendet dieser ein Paket mit der msgtype 0 zum Client zurück.
 Invalid:
 {
 	"msgtype": 0
 }
 
+// Wenn der Login erfolgreich war, schickt der Server eine Login-Nachricht mit
+// einigen Daten wie der Freundesliste zurück. Andersfalls wird eine Login-
+// Nachricht mit einem Fehler zurückgeschickt, in dem in "error" angegeben
+// wird, sodass klar ist, was schief lief.
 Login:
 {
 	"msgtype": 1,
@@ -90,6 +113,9 @@ Login:
 	],
 }
 
+// Wenn man selbst oder jemand anderes eine Nachricht geschrieben hat und man
+// zu diesem Chat gehört, bekommt der Client vom Server eine Nachricht, in
+// der die ChatID, der Autor, das Datum sowie die Nachricht selbst steht.
 Message:
 {
 	"msgtype": 2,
@@ -100,6 +126,8 @@ Message:
 	"message": "Eine neue Nachricht"
 }
 
+// Wenn ein Freund einen anderen gelöscht hat, dann bekommt dieser eine 
+// Nachricht, in der der Name des Freundes steht, der einen gelöscht hat. 
 DeleteBuddy:
 {
 	"msgtype": 3,
@@ -107,6 +135,8 @@ DeleteBuddy:
 	"nickname": "exbuddy"
 }
 
+// Die Antwort auf die GetConversaations-Nachricht an dem Server. Sie
+// enthält eine Liste der Konversationen (Gruppenchats) zu denen man gehört.
 GetConversations:
 {
 	"msgtype": 4,
@@ -117,6 +147,9 @@ GetConversations:
 	]
 }
 
+// Die Nachricht, die ein Client empfängt, nachdem dieser die Nachrichten eines
+// bestimmten Chats angefordert hat. Es ist die ChatID sowie eine Liste mit 
+// den Nachrichten enthalten.
 GetMessages:
 {
 	"msgtype": 5,
@@ -142,7 +175,7 @@ AddFriend:
 	"quotation": "A nice quotation."
 }
 
-// Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erh�lt.
+// Diese Nachricht bekommt derjenig, der die Freundschaftsanfrage erhält.
 FriendshipRequest:
 {
 	"msgtype": 7,
@@ -150,6 +183,7 @@ FriendshipRequest:
 	"nickname": "newbuddy"
 }
 
+// Wird an einen Client geschickt, wenn ein anderer seinen Status ändert.
 Status:
 {
 	"msgtype": 8,
